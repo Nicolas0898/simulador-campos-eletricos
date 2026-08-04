@@ -130,4 +130,21 @@ export class ContextRender{
 
     }
 
-}   
+}  
+
+export class WebglRender{
+        /**
+     * @type {HTMLCanvasElement}
+     */
+    canvas
+    /**
+     */
+    context
+
+    constructor(canvas){
+        this.canvas = canvas
+        this.context = this.canvas.getContext("webgl2")
+        this.context.imageSmoothingEnabled = false;
+        // this.canvas.style.imageRendering = "pixelated"
+    }
+}
