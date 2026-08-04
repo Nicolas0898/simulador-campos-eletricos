@@ -15,7 +15,7 @@ export class ContextRender{
         this.canvas = canvas
         this.context = this.canvas.getContext("2d")
         this.context.imageSmoothingEnabled = false;
-        this.canvas.style.imageRendering = "pixelated"
+        // this.canvas.style.imageRendering = "pixelated"
     }
 
 
@@ -43,11 +43,14 @@ export class ContextRender{
     }
 
     /// 
-    drawArrow( fromX, fromY, toX, toY, headLength = 15, headAngle = Math.PI / 6) {
+    drawArrow( fromX, fromY, toX, toY, headLength = 15, headAngle = Math.PI / 6,stroke=true) {
         // Calculate the angle of the main line
         const angle = Math.atan2(toY - fromY, toX - fromX);
 
-        this.context.beginPath();
+        if(stroke){
+           
+            this.context.beginPath();
+        }
         
         // Draw the main arrow shaft
         this.context.moveTo(fromX, fromY);
@@ -67,7 +70,9 @@ export class ContextRender{
         );
 
         // Render the lines onto the canvas
-        this.context.stroke();
+        if(stroke){
+            this.context.stroke();
+        }
     }
 
 
@@ -112,6 +117,11 @@ export class ContextRender{
                 let field = ChargeParticle.get_field_from_array(lastpos)
                 field = field.normalize()
                 let nextpos = new Point(lastpos.x+field.x,lastpos.y+field.y)
+                // console.log(i%10)
+                if((i%100)==0){
+                    this.drawArrow(lastpos.x,lastpos.y,nextpos.x,nextpos.y,8,Math.PI/6.0,false)
+                    this.context.moveTo(nextpos.x,nextpos.y)
+                }
                 this.context.lineTo(nextpos.x,nextpos.y)
                 lastpos = nextpos
             }
