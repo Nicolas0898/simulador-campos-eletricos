@@ -97,4 +97,27 @@ export class ContextRender{
         }
     }
 
+    /**
+     * 
+     * @param {ChargeParticle} charge 
+     */
+    drawPathFromCharge(charge,LINES=8){
+        for(let line = 0;line<LINES;line++){
+            this.context.beginPath()
+            this.context.moveTo(charge.position.x,charge.position.y)
+            const angle = line/LINES * 2 * Math.PI
+            let lastpos = new Point(charge.position.x + Math.cos(angle),charge.position.y + Math.sin(angle))
+            
+            for(let i = 0;i<2000;i++){
+                let field = ChargeParticle.get_field_from_array(lastpos)
+                field = field.normalize()
+                let nextpos = new Point(lastpos.x+field.x,lastpos.y+field.y)
+                this.context.lineTo(nextpos.x,nextpos.y)
+                lastpos = nextpos
+            }
+            this.context.stroke()
+        }
+
+    }
+
 }   
