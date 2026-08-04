@@ -38,7 +38,7 @@ export class Point{
   normalize(){
     const magnitude = Math.sqrt(this.x * this.x + this.y * this.y);
     if (magnitude === 0) {
-        return { x: 0, y: 0 };
+        return new Point(0,0);
     }
     return new Point(this.x/magnitude,this.y/magnitude)
   }

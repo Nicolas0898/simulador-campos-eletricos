@@ -79,7 +79,20 @@ export class ContextRender{
                 console.log(ChargeParticle.Charges)
                 vec = vec.normalize()
                 console.log(vec)
-                this.drawArrow(x,y,x+vec.x,y+vec.y-1,9)
+                const angle = Math.atan2(vec.x,vec.y)
+                vec = vec.multiply(15)
+
+                this.drawArrow(x,y,x+vec.x,y+vec.y,8)
+                // this.context.beginPath()
+                // this.context.moveTo(x+vec.x,y+vec.y)
+                // this.context.lineTo(x+Math.cos(angle)*10,y+Math.sin(angle)*10)
+                // this.context.moveTo(x+vec.x,y+vec.y)
+                // this.context.lineTo(x+Math.cos(angle)*10,y)
+                // this.context.stroke()
+
+                
+                // this.context.rotate(angle)
+
             }
         }
     }

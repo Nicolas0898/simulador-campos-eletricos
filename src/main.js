@@ -13,14 +13,17 @@ import { ContextRender } from './render'
 var canvas = document.getElementById("maincanvas")
 
 const render = new ContextRender(canvas)
-const charge1 = new ChargeParticle(new Point(200,200),20)
-const charge2 = new ChargeParticle(new Point(400,400),-20)
-const charge3 = new ChargeParticle(new Point(200,600),20)
+const charge1 = new ChargeParticle(new Point(400,200),0.0002)
+const charge2 = new ChargeParticle(new Point(400,400),0.0002)
+render.drawCharge(new ChargeParticle(new Point(200,300),-0.0002))
+
+// const charge3 = new ChargeParticle(new Point(200,600),-20)
+// const charge4 = new ChargeParticle(new Point(600,100),20)
 
 
 render.drawCharge(charge1)
 render.drawCharge(charge2)
-render.drawCharge(charge3)
+// render.drawCharge(charge3)
 render.drawField(20)
 
 // context.
