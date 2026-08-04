@@ -75,8 +75,10 @@ export class ContextRender{
         for(let x=0;x<this.canvas.width;x+=step){
             for(let y=0;y<this.canvas.width;y+=step){
                 // this.drawPoint(new Point(x,y))
-                const vec = ChargeParticle.get_field_from_array(new Point(x,y))
+                var vec = ChargeParticle.get_field_from_array(new Point(x,y))
                 console.log(ChargeParticle.Charges)
+                vec = vec.normalize()
+                console.log(vec)
                 this.drawArrow(x,y,x+vec.x,y+vec.y-1,9)
             }
         }

@@ -17,10 +17,10 @@ export default class ChargeParticle{
   eletric_field_at(target_position){
     const mod = this.K*(this.charge/Math.pow(target_position.distance_to(this.position),2))
     const dir = target_position.direction(this.position)
-    if (target_position.x==this.position.x && target_position.y==this.position.y){
+    if (!isFinite(mod)){
         return new Point(0,0)
     }
-    console.log(dir)
+    // console.log(mod)
     return dir.multiply(mod)
   }
 
