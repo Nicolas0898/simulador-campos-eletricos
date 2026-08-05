@@ -19,10 +19,10 @@ var glcanvas = document.getElementById("glcanvas")
 
 const render = new ContextRender(canvas)
 
-const charge1 = new ChargeParticle(new Point(400,200),0.0002)
-const charge2 = new ChargeParticle(new Point(500,400),0.0002)
-const charge3 = new ChargeParticle(new Point(200,300),-0.002)
-// const charge4 = new ChargeParticle(new Point(200,600),-0.002)
+// const charge1 = new ChargeParticle(new Point(400,200),-0.0002)
+const charge2 = new ChargeParticle(new Point(500,400),-0.0002)
+const charge3 = new ChargeParticle(new Point(200,300),0.002)
+const charge4 = new ChargeParticle(new Point(200,600),0.002)
 
 // const charge3 = new ChargeParticle(new Point(200,600),-20)
 // const charge4 = new ChargeParticle(new Point(600,100),20)
@@ -33,8 +33,8 @@ const charge3 = new ChargeParticle(new Point(200,300),-0.002)
 // render.drawCharge(charge3)
 // render.drawCharge(charge3)
 // render.drawField(40)
-render.drawPathFromCharge(charge1,20)
-render.drawPathFromCharge(charge2,20)
+// render.drawPathFromCharge(charge1,20)
+// render.drawPathFromCharge(charge2,20)
 // render.drawPathFromCharge(charge3,20)
 // render.drawPathFromCharge(charge4,20)
 
@@ -62,10 +62,10 @@ gl.shaderSource(fragment,pinkfragment)
 gl.compileShader(fragment)
 console.log(gl.getShaderInfoLog(fragment));
 
-const bufferless_vertex = gl.createShader(gl.VERTEX_SHADER)
-gl.shaderSource(bufferless_vertex,bufferlessVertex)
-gl.compileShader(bufferless_vertex)
-console.log(gl.getShaderInfoLog(bufferless_vertex))
+const heatmapfragment = gl.createShader(gl.FRAGMENT_SHADER)
+gl.shaderSource(heatmapfragment,testFragmentShader)
+gl.compileShader(heatmapfragment)
+console.log(gl.getShaderInfoLog(heatmapfragment));
 
 const program = gl.createProgram()
 gl.attachShader(program,vertex)
@@ -74,9 +74,13 @@ gl.linkProgram(program)
 console.log(gl.getProgramParameter(program, gl.LINK_STATUS))
 console.log(gl.getProgramInfoLog(program))
 
-// const resolution = gl.getUniformLocation(program,"resolution")
-// const charges = gl.getUniformLocation(program,"charges")
-// const charge_count = gl.getUniformLocation(program,"charge_count")
+const program2 = gl.createProgram()
+gl.attachShader(program2,vertex)
+gl.attachShader(program2,heatmapfragment)
+gl.linkProgram(program2)
+console.log(gl.getProgramParameter(program2, gl.LINK_STATUS))
+console.log(gl.getProgramInfoLog(program2))
+
 
 
 
@@ -102,18 +106,7 @@ gl.vertexAttribPointer(vertex_buffer_pos,2,gl.FLOAT,false,0,0)
 
 gl.useProgram(program)
 
-// gl.uniform2fv(resolution,[800,800])
-// gl.uniform1i(charge_count,ChargeParticle.Charges.length)
-// let chargesarr = []
-// for(let charge of ChargeParticle.Charges){
-//     chargesarr.push(charge.position.x)
-//     chargesarr.push(charge.position.y)
-//     chargesarr.push(charge.charge)
-// }
-// gl.uniform3fv(charges,chargesarr)
-// console.log(chargesarr)
-// gl.bindVertexArray(vao2)
-// gl.drawArrays(gl.TRIANGLES,0,3)
+
 
 // const path = new Float32Array(render.calculatePathFromCharge(charge1).map(x=>x/800.0))
 // const path2 = new Float32Array(render.calculatePathFromCharge(charge2).map(x=>x/800.0))
@@ -141,10 +134,14 @@ gl.useProgram(program)
 
 
 ///// MOUSE REGION
-requestAnimationFrame(upd)
+// requestAnimationFrame(upd)
+upd()
 
 
-var mx,my
+var mx = 400
+var my = 400
+upd()
+
 function upd(){
     requestAnimationFrame(upd)
     charge2.position = new Point(mx,my)
@@ -164,18 +161,44 @@ function upd(){
     // gl.uniform3fv(charges,chargesarr)
     // gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,1,0,1  ,1,1,0,1  ,-1,-1,0,1,  1,-1,0,1,  -1,-1,0,1,  1,1,0,1]),gl.STATIC_DRAW)
     // gl.drawArrays(gl.TRIANGLES,0,6)
-    const path = new Float32Array(render.calculatePathFromCharge(charge1,20,10).map(x=>(x/400.0) - 1))
-    const path2 = new Float32Array(render.calculatePathFromCharge(charge2,20,10).map(x=>(x/400.0) - 1))
-    const path3 = new Float32Array(render.calculatePathFromCharge(charge3,20,10).map(x=>(x/400.0) - 1))
+   
+    gl.useProgram(program2)
+
+    const resolution = gl.getUniformLocation(program2,"resolution")
+    const charges = gl.getUniformLocation(program2,"charges")
+    const charge_count = gl.getUniformLocation(program2,"charge_count")
+
+
+    gl.uniform2fv(resolution,[800,800])
+    gl.uniform1i(charge_count,ChargeParticle.Charges.length)
+    let chargesarr = []
+    for(let charge of ChargeParticle.Charges){
+        chargesarr.push(charge.position.x)
+        chargesarr.push(charge.position.y)
+        chargesarr.push(charge.charge)
+    }
+    gl.uniform3fv(charges,chargesarr)
+    // console.log(chargesarr)
+    gl.bindVertexArray(vao)
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,1  ,1,1  ,-1,-1,  1,-1,  -1,-1,  1,1]),gl.STATIC_DRAW)
+    gl.drawArrays(gl.TRIANGLES,0,6)
+    // return
+   
+    // const path3 = new Float32Array(render.calculatePathFromCharge(charge3,20,6).map(x=>(x/400.0) - 1))
     // const path4 = new Float32Array(render.calculatePathFromCharge(charge4,8,10).map(x=>(x/400.0) - 1))
+    gl.useProgram(program)
     gl.bindVertexArray(vao)
     gl.lineWidth(1)
-    gl.bufferData(gl.ARRAY_BUFFER,path,gl.STATIC_DRAW)
-    gl.drawArrays(gl.LINES,0,path.length)
-    gl.bufferData(gl.ARRAY_BUFFER,path2,gl.STATIC_DRAW)
-    gl.drawArrays(gl.LINES,0,path2.length)
-    gl.bufferData(gl.ARRAY_BUFFER,path3,gl.STATIC_DRAW)
-    gl.drawArrays(gl.LINES,0,path3.length)
+
+    for(let ccharge of ChargeParticle.Charges){
+        const path = new Float32Array(render.calculatePathFromCharge(ccharge,20,6).map(x=>(x/400.0) - 1))
+        gl.bufferData(gl.ARRAY_BUFFER,path,gl.STATIC_DRAW)
+        gl.drawArrays(gl.LINES,0,path.length)
+        // console.log(ccharge)
+    }
+    
+    // gl.bufferData(gl.ARRAY_BUFFER,path3,gl.STATIC_DRAW)
+    // gl.drawArrays(gl.LINES,0,path3.length)
     // gl.bufferData(gl.ARRAY_BUFFER,path4,gl.STATIC_DRAW)
     // gl.drawArrays(gl.LINES,0,path4.length)    
 }
@@ -187,3 +210,4 @@ window.addEventListener("mousemove",e=>{
     // render.drawPathFromCharge(charge3,20)
 
 })
+

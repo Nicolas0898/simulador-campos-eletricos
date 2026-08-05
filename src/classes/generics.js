@@ -50,4 +50,9 @@ export class Point{
   multiply(n){
     return new Point(this.x*n,this.y*n)
   }
+
+  dot(other){
+    // console.log(this.x,this.y,other.x,other.y)
+    return (this.x*other.x+this.y*other.y)
+  }
 }

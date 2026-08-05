@@ -137,11 +137,13 @@ export class ContextRender{
             const angle = line/LINES * 2 * Math.PI
             let lastpos = new Point(charge.position.x + Math.cos(angle),charge.position.y + Math.sin(angle))
             
-            for(let i = 0;i<800;i++){
+            for(let i = 0;i<400;i++){
                 let field = ChargeParticle.get_field_from_array(lastpos)
                 field = field.normalize()
-                field = field.multiply(step)
+                var factor = charge.charge<0? -1 : 1
+                field = field.multiply(step*factor)
                 let nextpos = new Point(lastpos.x+field.x,lastpos.y+field.y)
+
                 points.push(lastpos.x)
                 points.push(800- lastpos.y)
                 points.push(nextpos.x)

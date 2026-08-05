@@ -25,8 +25,8 @@ void main(){
         final_E += K * (charges[i].z/pow(r,2.0));
     }
 
-    float normalized=log(1.0+abs(final_E))/log(1.0+10.0) * ((final_E>0.0) ? 1.0:-1.0);
+    float normalized=log(1.0+abs(final_E))/log(1.0+10000000.0) * ((final_E>0.0) ? 1.0:-1.0);
     
     float n2 = 0.5+normalized;
-    COLOR = vec4(n2,n2,n2,1);
+    COLOR = vec4(1.0-n2,n2,n2,1);
 }
