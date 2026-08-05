@@ -130,6 +130,31 @@ export class ContextRender{
 
     }
 
+    calculatePathFromCharge(charge,LINES=8,step=1){
+        var points = []
+
+        for(let line = 0;line<LINES;line++){
+            const angle = line/LINES * 2 * Math.PI
+            let lastpos = new Point(charge.position.x + Math.cos(angle),charge.position.y + Math.sin(angle))
+            
+            for(let i = 0;i<800;i++){
+                let field = ChargeParticle.get_field_from_array(lastpos)
+                field = field.normalize()
+                field = field.multiply(step)
+                let nextpos = new Point(lastpos.x+field.x,lastpos.y+field.y)
+                points.push(lastpos.x)
+                points.push(800- lastpos.y)
+                points.push(nextpos.x)
+                points.push(800- nextpos.y)
+                // console.log(i%10)
+                lastpos = nextpos
+            }
+        }
+
+        return points
+    }
+
+
 }  
 
 export class WebglRender{
