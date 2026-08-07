@@ -22,6 +22,10 @@ export class Point{
     this.y = parseFloat(y)
   }
 
+  magnitude(){
+    return Math.sqrt(Math.pow(this.x,2),Math.pow(this.y,2))
+  }
+
 
   direction(other){
     return this.subtract_point(other).normalize()

@@ -29,13 +29,23 @@ export default class ChargeParticle{
    * @param {Point} position 
    * @param {Array[ChargeParticle]} charges 
    */
-  static get_field_from_array(position,charges) {
+  static get_field_from_array(position) {
     var vec = new Point(0,0)
     for(let i of ChargeParticle.Charges){
         const e = i.eletric_field_at(position)
         vec = vec.sum_point(e)
     }
     return vec
+  }
+
+  static get_closest(position,self){
+    var closest
+    for(let i of ChargeParticle.Charges){
+        if((!closest||closest.position.distance_to(position)>i.position.distance_to(position)) && !(i==self)){
+          closest = i
+        }
+    }
+    return closest
   }
 
   constructor(position,charge){
