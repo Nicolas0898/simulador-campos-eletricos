@@ -2,7 +2,7 @@ import ChargeParticle from "./classes/chargeParticle"
 import { Point } from "./classes/generics"
 import charge from './shaders/vertex/charge.glsl?raw'
 import solid from './shaders/fragment/solid.glsl?raw'
-
+import normalFragment from './shaders/fragment/normal.glsl?raw'
 
 const GLSL_MACROS = [
     [/#clip ?\(\s*(\w+)\s*,\s*(\w+)\s*\)/gm, "(($1/$2 - 0.5) * 2.0) * vec2(1,-1)"]
@@ -26,6 +26,17 @@ export class WebglRender {
     /** @type {WebGLVertexArrayObject} */
     chargeVAO
     chargeUniforms = {}
+    
+    
+    /** @type {WebGLProgram} */
+    normalProgram
+    /** @type {WebGLBuffer} */
+    normalBuffer
+    /** @type {WebGLVertexArrayObject} */
+    normalVAO
+    /** @type {WebGLTexture} */
+    normalTEXTURE
+    normalUniforms = {}
 
     static NUMBER_OF_LINE_STEPS = 400
 
@@ -48,6 +59,10 @@ export class WebglRender {
             const inputPos = gl.getAttribLocation(this.chargeProgram, "position")
             const resolutionPos = gl.getUniformLocation(this.chargeProgram, "resolution")
             const colorPos = gl.getUniformLocation(this.chargeProgram, "inColor")
+            this.normalUniforms.inputPos = inputPos
+            this.normalUniforms.resolutionPos = resolutionPos
+            this.normalUniforms.colorPos = colorPos
+
             this.chargeUniforms.resolution = resolutionPos
             this.chargeUniforms.color = colorPos
 
@@ -58,10 +73,61 @@ export class WebglRender {
 
             gl.useProgram(this.chargeProgram)
             gl.uniform2fv(resolutionPos, [gl.canvas.width, gl.canvas.height])
-            gl.uniform4fv(colorPos, [0, 0, 0, 1])
+            gl.uniform4fv(colorPos, [0, 0, 0, 1.0])
+        }
+
+        {
+            const vertex = this.loadShader(gl.VERTEX_SHADER,charge)
+            const fragment = this.loadShader(gl.FRAGMENT_SHADER,normalFragment)
+            const program = this.createProgram(vertex,fragment)
+            this.normalProgram = program
+
+            const inputPos = gl.getAttribLocation(this.normalProgram, "position")
+            const resolutionPos = gl.getUniformLocation(this.normalProgram, "resolution")
+            const point_n = gl.getUniformLocation(this.normalProgram, "point_n")
+
+            const vao = gl.createVertexArray()
+            this.normalVAO = vao
+
+            const buffer = gl.createBuffer()
+            this.normalBuffer = buffer
+
+            const texture = gl.createTexture()
+            const texturePos = gl.getUniformLocation(this.normalProgram,"point_data")
+            this.normalTEXTURE = texture
+            gl.bindTexture(gl.TEXTURE_2D,texture)
+            
+            const [data_texture,points] = ChargeParticle.charges_to_texture()
+            console.log(data_texture,points)
+            
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT,1)
+            gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,1,points,0,gl.RGB,gl.FLOAT,data_texture)
+                    // gl.generateMipmap(gl.TEXTURE_2D)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                    
+            //         var image = new Image();
+            //         image.src = "/src/cu.webp";
+            // image.addEventListener('load', function() {
+            //     // Now that the image has loaded make copy it to the texture.
+            //     gl.bindTexture(gl.TEXTURE_2D, texture);
+            //     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+            //     gl.generateMipmap(gl.TEXTURE_2D);
+            // });
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER,buffer)
+            gl.bindVertexArray(vao)
+            gl.enableVertexAttribArray(inputPos)
+            gl.vertexAttribPointer(inputPos,2,gl.FLOAT,false,0,0)
+
+            gl.useProgram(this.normalProgram)
+            gl.uniform1i(texturePos,0)
+            gl.uniform2fv(resolutionPos, [gl.canvas.width, gl.canvas.height])
+            gl.uniform1i(point_n,points)
         }
 
 
+        gl.viewport(0,0,gl.canvas.width,gl.canvas.height)
     }
 
     /**
@@ -160,6 +226,29 @@ export class WebglRender {
 
     }
 
+    drawNormalBackground(){
+        const gl = this.context
+
+        gl.useProgram(this.normalProgram)
+        gl.bindTexture(gl.TEXTURE_2D,this.normalTEXTURE)
+        const [data_texture,points] = ChargeParticle.charges_to_texture()
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,1,points,0,gl.RGB,gl.FLOAT,data_texture)
+        gl.uniform1i(this.normalUniforms.point_n,points)
+
+        gl.bindVertexArray(this.normalVAO)
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.normalBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([
+            0,0,
+            gl.canvas.width,0,
+            gl.canvas.width,gl.canvas.height,
+            0,0,
+            0,gl.canvas.height,
+            gl.canvas.width,gl.canvas.height,
+
+        ]),gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES,0,6)
+    }
+
     getArrowPoints(x, y, length, angle, arc = 1) {
         return [
             x,
@@ -256,7 +345,7 @@ export class WebglRender {
                 // console.log(field.dot(field))
 
                 // console.log(closestCharge.position.distance_to(lastpos))
-                if (closestCharge.position.distance_to(lastpos) < step) {
+                if (closestCharge && closestCharge.position.distance_to(lastpos) < step) {
                     break
                 } else {
 

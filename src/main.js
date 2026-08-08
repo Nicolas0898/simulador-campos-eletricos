@@ -8,7 +8,17 @@ import { ContextRender, WebglRender } from './render'
 /////////////////////////////////////////////
 //              PROGRAM
 /////////////////////////////////////////////
-
+const charges=[
+    new ChargeParticle(new Point(500,400),0.02),
+    new ChargeParticle(new Point(700,300),0.02),
+    new ChargeParticle(new Point(200,300),-0.02),
+    // new ChargeParticle(new Point(100,700),-0.02),
+    // new ChargeParticle(new Point(800,700),-0.02),
+    // new ChargeParticle(new Point(1000,300),0.02),
+    // new ChargeParticle(new Point(1000,1000),0.2),
+    // new ChargeParticle(new Point(0,0),0.2),
+    // new ChargeParticle(new Point(500,500),-0.002),
+]
 /**
  * @type {HTMLCanvasElement}
  */
@@ -26,18 +36,14 @@ const gl = glRender.context
 // const charge2 = 
 // const charge3 = 
 // const charge4 = new ChargeParticle(new Point(200,600),0.02)
-const charges=[
-    // new ChargeParticle(new Point(500,400),0.02),
-    // new ChargeParticle(new Point(700,300),0.02),
-    new ChargeParticle(new Point(200,300),0.02),
-    new ChargeParticle(new Point(200,700),-0.02),
-]
+
 
 
 function update(){
     gl.clear(gl.COLOR_BUFFER_BIT)
+    // glRender.drawNormalBackground()
     glRender.drawFieldLines(charges)
-    glRender.drawFieldVectorArrow(20)
+    // glRender.drawFieldVectorArrow(20)
     glRender.drawCharges(charges)
     // glRender.drawArrow(400,400,10,Math.PI,1)
     

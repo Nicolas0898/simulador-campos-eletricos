@@ -48,6 +48,20 @@ export default class ChargeParticle{
     return closest
   }
 
+  static charges_to_texture(){
+    let data = []
+    let points = 0
+    for(let i of ChargeParticle.Charges){
+      data.push(i.position.x)
+      data.push(i.position.y)
+      data.push(i.charge)
+      points+=1
+    }
+
+
+    return [new Float32Array(data),points]
+  }
+
   constructor(position,charge){
     this.position = position
     this.charge = charge
