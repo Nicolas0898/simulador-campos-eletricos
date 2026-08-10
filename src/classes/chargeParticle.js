@@ -8,6 +8,7 @@ export default class ChargeParticle{
   K = 9*Math.pow(10,9)
 
   static Charges = []
+  fieldLines = []
 
   /**
    * 
@@ -38,6 +39,12 @@ export default class ChargeParticle{
     return vec
   }
 
+  /**
+   * 
+   * @param {Point} position 
+   * @param {ChargeParticle} self 
+   * @returns {ChargeParticle|null}
+   */
   static get_closest(position,self){
     var closest
     for(let i of ChargeParticle.Charges){
@@ -62,10 +69,17 @@ export default class ChargeParticle{
     return [new Float32Array(data),points]
   }
 
+  static clear_field_lines(){
+    for(let i of ChargeParticle.Charges){
+      i.fieldLines = []
+    }
+  }
+
   constructor(position,charge){
     this.position = position
     this.charge = charge
     ChargeParticle.Charges.push(this)
-    
+    ChargeParticle.Charges = ChargeParticle.Charges.sort((a,b) => b.charge-a.charge)
+    console.log(ChargeParticle.Charges)  
   }
 }

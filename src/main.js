@@ -9,15 +9,15 @@ import { ContextRender, WebglRender } from './render'
 //              PROGRAM
 /////////////////////////////////////////////
 const charges=[
-    new ChargeParticle(new Point(500,400),0.02),
+    new ChargeParticle(new Point(500,400),-0.2),
     new ChargeParticle(new Point(700,300),0.02),
-    new ChargeParticle(new Point(200,300),-0.02),
-    // new ChargeParticle(new Point(100,700),-0.02),
+    // new ChargeParticle(new Point(200,300),0.2),
+    // new ChargeParticle(new Point(100,700),0.02),
     // new ChargeParticle(new Point(800,700),-0.02),
     // new ChargeParticle(new Point(1000,300),0.02),
     // new ChargeParticle(new Point(1000,1000),0.2),
     // new ChargeParticle(new Point(0,0),0.2),
-    // new ChargeParticle(new Point(500,500),-0.002),
+    // new ChargeParticle(new Point(500,500),-1.0),
 ]
 /**
  * @type {HTMLCanvasElement}
@@ -41,10 +41,13 @@ const gl = glRender.context
 
 function update(){
     gl.clear(gl.COLOR_BUFFER_BIT)
+    ChargeParticle.clear_field_lines()
     // glRender.drawNormalBackground()
+    // glRender.drawBackground(0)
     glRender.drawFieldLines(charges)
     // glRender.drawFieldVectorArrow(20)
     glRender.drawCharges(charges)
+    
     // glRender.drawArrow(400,400,10,Math.PI,1)
     
 
@@ -53,8 +56,8 @@ function update(){
 update()
 
 glcanvas.addEventListener("mousemove",e=>{
-    charges[0].position.x = e.clientX
-    charges[0].position.y = e.clientY
+    charges[0].position.x = e.offsetX
+    charges[0].position.y = e.offsetY
 })
 
 

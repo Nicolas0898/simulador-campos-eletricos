@@ -59,10 +59,6 @@ export class WebglRender {
             const inputPos = gl.getAttribLocation(this.chargeProgram, "position")
             const resolutionPos = gl.getUniformLocation(this.chargeProgram, "resolution")
             const colorPos = gl.getUniformLocation(this.chargeProgram, "inColor")
-            this.normalUniforms.inputPos = inputPos
-            this.normalUniforms.resolutionPos = resolutionPos
-            this.normalUniforms.colorPos = colorPos
-
             this.chargeUniforms.resolution = resolutionPos
             this.chargeUniforms.color = colorPos
 
@@ -85,6 +81,12 @@ export class WebglRender {
             const inputPos = gl.getAttribLocation(this.normalProgram, "position")
             const resolutionPos = gl.getUniformLocation(this.normalProgram, "resolution")
             const point_n = gl.getUniformLocation(this.normalProgram, "point_n")
+            const typePos = gl.getUniformLocation(this.normalProgram, "type")
+
+            this.normalUniforms.inputPos = inputPos
+            this.normalUniforms.resolutionPos = resolutionPos
+            this.normalUniforms.point_n = point_n
+            this.normalUniforms.type = typePos
 
             const vao = gl.createVertexArray()
             this.normalVAO = vao
@@ -95,6 +97,7 @@ export class WebglRender {
             const texture = gl.createTexture()
             const texturePos = gl.getUniformLocation(this.normalProgram,"point_data")
             this.normalTEXTURE = texture
+            gl.activeTexture(gl.TEXTURE0)
             gl.bindTexture(gl.TEXTURE_2D,texture)
             
             const [data_texture,points] = ChargeParticle.charges_to_texture()
@@ -102,19 +105,23 @@ export class WebglRender {
             
             gl.pixelStorei(gl.UNPACK_ALIGNMENT,1)
             gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,1,points,0,gl.RGB,gl.FLOAT,data_texture)
-                    // gl.generateMipmap(gl.TEXTURE_2D)
+            // gl.generateMipmap(gl.TEXTURE_2D)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                    
-            //         var image = new Image();
-            //         image.src = "/src/cu.webp";
-            // image.addEventListener('load', function() {
-            //     // Now that the image has loaded make copy it to the texture.
-            //     gl.bindTexture(gl.TEXTURE_2D, texture);
-            //     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
-            //     gl.generateMipmap(gl.TEXTURE_2D);
-            // });
             
+            const heatmapTexture = gl.createTexture();
+            const heatPos = gl.getUniformLocation(program,"heatmap");
+            gl.activeTexture(gl.TEXTURE1)
+            gl.bindTexture(gl.TEXTURE_2D,heatmapTexture)
+            gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,2,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([
+                0,0,0,255,
+                255,255,255,255,
+            ]))
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE)
+            gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)
+
             gl.bindBuffer(gl.ARRAY_BUFFER,buffer)
             gl.bindVertexArray(vao)
             gl.enableVertexAttribArray(inputPos)
@@ -122,8 +129,12 @@ export class WebglRender {
 
             gl.useProgram(this.normalProgram)
             gl.uniform1i(texturePos,0)
+            gl.uniform1i(heatPos,1)
             gl.uniform2fv(resolutionPos, [gl.canvas.width, gl.canvas.height])
             gl.uniform1i(point_n,points)
+            gl.uniform1i(typePos,1)
+
+
         }
 
 
@@ -222,18 +233,40 @@ export class WebglRender {
         // console.log(result_points)
     }
 
-    drawHeatmapBackground() {
 
+    drawPoints(points, ...args) {
+        const gl = this.context
+        var array = Array.isArray(points) ? [...points, ...args] : [points, ...args]
+
+        var result_points = new Float32Array(20 * 6 * array.length)
+
+        let lastpos = 0
+        for (let point of array) {
+            const points = this.createCirclePoints(point.x, point.y, 1)
+            result_points.set(points, lastpos)
+            lastpos += points.length
+        }
+
+        gl.useProgram(this.chargeProgram)
+        gl.bindVertexArray(this.chargeVAO)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
+        // gl.bufferSubData()
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+
+
+        // console.log(result_points)
     }
-
-    drawNormalBackground(){
+    drawBackground(type=1) {
         const gl = this.context
 
         gl.useProgram(this.normalProgram)
+        gl.activeTexture(gl.TEXTURE0)
         gl.bindTexture(gl.TEXTURE_2D,this.normalTEXTURE)
         const [data_texture,points] = ChargeParticle.charges_to_texture()
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,1,points,0,gl.RGB,gl.FLOAT,data_texture)
         gl.uniform1i(this.normalUniforms.point_n,points)
+        gl.uniform1i(this.normalUniforms.type,type)
 
         gl.bindVertexArray(this.normalVAO)
         gl.bindBuffer(gl.ARRAY_BUFFER,this.normalBuffer)
@@ -324,28 +357,47 @@ export class WebglRender {
 
 
     calculatePathFromCharge(charge, step = 1, LINES = 8, ARROWSTEP = 15) {
-        if (charge.charge < 0) return [[], []]
+        // if (charge.charge < 0) return [[], []]
         var points = []
         var arrow_buffer = []
+        let nn=0,pn=0
+        for(let c of ChargeParticle.Charges){
+            if(c.charge>0){
+                pn+=1
+            }else{
+                nn+=1
+            }
+        }        
+        let negative_dominant = nn>pn
+        // negative_dominant = false
+        // console.log(negative_dominant)
+
+        if(charge.charge<0 &&! negative_dominant){
+            return [[],[]]
+        }else if(charge.charge>0 && negative_dominant){
+            return [[],[]]
+        }
 
         for (let line = 0; line < LINES; line++) {
             const angle = line / LINES * 2 * Math.PI
             let lastpos = new Point(charge.position.x + Math.cos(angle), charge.position.y + Math.sin(angle))
-
+            // console.log(charge.charge,charge.fieldLines)
             for (let i = 0; i < WebglRender.NUMBER_OF_LINE_STEPS; i++) {
                 let field = ChargeParticle.get_field_from_array(lastpos)
                 field = field.normalize()
-                var factor = charge.charge < 0 ? 1 : 1
+                var factor = charge.charge < 0 ? -1 : 1
                 var f = field
                 field = field.multiply(step * factor)
                 let nextpos = new Point(lastpos.x + field.x, lastpos.y + field.y)
                 const closestCharge = ChargeParticle.get_closest(lastpos,charge)
+                
                 // console.log(closestCharge)
 
                 // console.log(field.dot(field))
 
                 // console.log(closestCharge.position.distance_to(lastpos))
-                if (closestCharge && closestCharge.position.distance_to(lastpos) < step) {
+                if (closestCharge && closestCharge.position.distance_to(lastpos) < step*1.0) {
+                    closestCharge.fieldLines.push(lastpos)
                     break
                 } else {
 
@@ -356,7 +408,7 @@ export class WebglRender {
                     points.push(nextpos.y)
 
                     if (i % ARROWSTEP == 0) {
-                        arrow_buffer.push([lastpos.x, lastpos.y, Math.atan2(field.y, field.x) + Math.PI])
+                        arrow_buffer.push([lastpos.x, lastpos.y, Math.atan2(field.y, field.x) + (charge.charge>0.0?Math.PI:Math.PI*2.0)])
                     }
                 }
 
