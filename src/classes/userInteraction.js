@@ -19,6 +19,7 @@ export class UserInteraction{
     mousePos = new Point(0,0)
     selectedObject
     activeMode = "selection"
+    mouseDown = false
 
     constructor(canvas){
         this.canvas = canvas
@@ -61,14 +62,20 @@ export class UserInteraction{
         }else{
             this.status.innerHTML = "(nenhum objeto selecionado)"
         }
+        this.selectedObject = object
     }
 
     // EVENT FUNCTIONS
     onMouseMove(e){
         this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX,e.offsetY))
+        if (this.mouseDown && this.selectedObject!=null){
+            console.log("aaaa")
+            this.selectedObject.position = this.mousePos
+        }
     }
 
     onMouseDown(e){
+        this.mouseDown = true
         console.log("pressed with:", this.activeMode)
         switch(this.activeMode){
             case "selection":
@@ -80,7 +87,7 @@ export class UserInteraction{
     }
 
     onMouseUp(e){
-        
+        this.mouseDown = false
     }
 
     selectionDown(e){
