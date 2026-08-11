@@ -357,7 +357,7 @@ export class WebglRender {
         const gl = this.context
         let array = Array.isArray(charges) ? charges : [charges]
 
-        let result_points = new Float32Array(WebglRender.NUMBER_OF_LINE_STEPS * lines * 6 * array.length)
+        let result_points = new Float32Array(WebglRender.NUMBER_OF_LINE_STEPS * lines * 12 * array.length)
         let arrowbuffer = []
 
         // console.log(result_points)

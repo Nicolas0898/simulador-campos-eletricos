@@ -1,3 +1,4 @@
+import ChargeParticle from "./chargeParticle"
 import { Point } from "./generics"
 
 export class UserInteraction{
@@ -7,6 +8,7 @@ export class UserInteraction{
     propertyMenu
     propertyForm
     modeSelector
+    status
 
 
     /** @type {WebGL2RenderingContext} */
@@ -25,6 +27,7 @@ export class UserInteraction{
         this.propertyMenu = document.getElementById("propertyMenu")
         this.propertyForm = document.getElementById("propertyForm")
         this.modeSelector = document.getElementById("modeSelector")
+        this.status = document.getElementById("status")
         for(let child of this.modeSelector.children){
             child.addEventListener("click",this.setModeActive.bind(this,child.dataset.mode))
         }
@@ -49,23 +52,46 @@ export class UserInteraction{
             }
         }
         this.activeMode = name
-        console.log(this.activeMode)
+        // console.log(this.activeMode)
     }
+
+    selectObject(object){
+        if(object){
+            this.status.innerHTML =  object.name+" ("+object.id+")"
+        }else{
+            this.status.innerHTML = "(nenhum objeto selecionado)"
+        }
+    }
+
+    // EVENT FUNCTIONS
     onMouseMove(e){
         this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX,e.offsetY))
     }
 
     onMouseDown(e){
-        console.log(this.activeMode)
+        console.log("pressed with:", this.activeMode)
         switch(this.activeMode){
             case "selection":
-                console.log("sel")
+                this.selectionDown()
+                break
             default:
                 this.setModeActive("selection")
         }
     }
 
     onMouseUp(e){
+        
+    }
 
+    selectionDown(e){
+        var selected = null
+        for(let charge of ChargeParticle.Charges){
+            var distance = charge.position.distance_to(this.mousePos)
+            if (distance<10.0){
+                selected = charge
+            }
+        }
+        console.log(selected)
+        this.selectObject(selected)
     }
 }

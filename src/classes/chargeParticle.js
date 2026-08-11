@@ -1,6 +1,7 @@
 import { Point } from "./generics"
+import { NodeObj } from "./node"
 
-export default class ChargeParticle{
+export default class ChargeParticle extends NodeObj{
   /** @type {Point} */
   position
   /** @type {number} */
@@ -76,10 +77,12 @@ export default class ChargeParticle{
   }
 
   constructor(position,charge){
+    super()
     this.position = position
     this.charge = charge
     ChargeParticle.Charges.push(this)
     ChargeParticle.Charges = ChargeParticle.Charges.sort((a,b) => b.charge-a.charge)
-    console.log(ChargeParticle.Charges)  
+    console.log(ChargeParticle.Charges)
+    this.name = "Carga"  
   }
 }
