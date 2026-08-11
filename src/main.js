@@ -1,4 +1,7 @@
-import './style.css'
+import './css/style.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap/dist/js/bootstrap.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import ChargeParticle from './classes/chargeParticle'
 import { Point } from './classes/generics'
 import { ContextRender, WebglRender } from './render'
@@ -57,8 +60,10 @@ function update(){
 update()
 
 glcanvas.addEventListener("mousemove",e=>{
-    charges[0].position.x = e.offsetX
-    charges[0].position.y = e.offsetY
+    const rect = glcanvas.getBoundingClientRect()
+    console.log(rect)
+    charges[0].position.x = e.offsetX/rect.width * gl.canvas.width
+    charges[0].position.y = e.offsetY/rect.height * gl.canvas.height
 })
 
 
