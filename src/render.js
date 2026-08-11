@@ -283,31 +283,69 @@ export class WebglRender {
     }
 
     getArrowPoints(x, y, length, angle, arc = 1) {
+        const p1 = new Point(x,y)
+        const p2 = new Point(x + Math.cos(angle + arc / 2) * length,y + Math.sin(angle + arc / 2) * length,y)
+        const p3 = new Point(x + Math.cos(angle - arc / 2) * length,y + Math.sin(angle - arc / 2) * length,y)
         return [
-            x,
-            y,
-            x + Math.cos(angle + arc / 2) * length,
-            y + Math.sin(angle + arc / 2) * length,
-            x,
-            y,
-            x + Math.cos(angle - arc / 2) * length,
-            y + Math.sin(angle - arc / 2) * length,
+            ...this.getLinePoints(p1.x,p1.y,p2.x,p2.y,1.0),
+            ...this.getLinePoints(p1.x,p1.y,p3.x,p3.y,1.0),
         ]
+    }
+
+    getLinePoints(x1,y1,x2,y2,length){
+        const p1 = new Point(x1,y1)
+        const p2 = new Point(x2,y2)
+        const direction = p1.direction(p2)
+        const perpendicular = new Point(direction.y,-direction.x)
+        return [
+            p1.x + (perpendicular.x*length)/2.0,
+            p1.y + (perpendicular.y*length)/2.0,
+            p1.x - (perpendicular.x*length)/2.0,
+            p1.y - (perpendicular.y*length)/2.0,
+            p2.x + (perpendicular.x*length)/2.0,
+            p2.y + (perpendicular.y*length)/2.0,
+            
+            p2.x + (perpendicular.x*length)/2.0,
+            p2.y + (perpendicular.y*length)/2.0,
+            p2.x - (perpendicular.x*length)/2.0,
+            p2.y - (perpendicular.y*length)/2.0,
+            p1.x - (perpendicular.x*length)/2.0,
+            p1.y - (perpendicular.y*length)/2.0,
+        ]
+
     }
 
     drawArrow(buffer, length = 10, arc = 1) {
         const gl = this.context
-        const result_points = new Float32Array(8 * buffer.length)
+        const result_points = new Float32Array(24 * buffer.length )
         let lastpos = 0
         for (let [x, y, angle] of buffer) {
-            result_points.set(this.getArrowPoints(x, y, length, angle, arc), lastpos)
-            lastpos += 8
+            const points = this.getArrowPoints(x, y, length, angle, arc)
+            // console.log(points)
+            result_points.set(points, lastpos)
+            lastpos += 24
+        }
+        // console.log(result_points)
+        gl.useProgram(this.chargeProgram)
+        gl.bindVertexArray(this.chargeVAO)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+    }
+
+    drawLine(buffer,length){
+        const gl = this.context
+        const result_points = new Float32Array(12 * buffer.length)
+        let lastpos = 0
+        for (let [p1, p2, angle] of buffer) {
+            result_points.set(this.getLinePoints(p1.x,p1.y,p2.x,p2.y,length), lastpos)
+            lastpos += 12
         }
         gl.useProgram(this.chargeProgram)
         gl.bindVertexArray(this.chargeVAO)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
-        gl.drawArrays(gl.LINES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
     }
 
 
@@ -315,7 +353,7 @@ export class WebglRender {
         const gl = this.context
         let array = Array.isArray(charges) ? charges : [charges]
 
-        let result_points = new Float32Array(WebglRender.NUMBER_OF_LINE_STEPS * lines * 4 * array.length)
+        let result_points = new Float32Array(WebglRender.NUMBER_OF_LINE_STEPS * lines * 6 * array.length)
         let arrowbuffer = []
 
         // console.log(result_points)
@@ -334,7 +372,7 @@ export class WebglRender {
         // gl.uniform4fv(this.chargeUniforms.color,[0,0,0,0.5])
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
-        gl.drawArrays(gl.LINES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
 
         this.drawArrow(arrowbuffer)
 
@@ -400,12 +438,12 @@ export class WebglRender {
                     closestCharge.fieldLines.push(lastpos)
                     break
                 } else {
+                    const result_points = this.getLinePoints(lastpos.x,lastpos.y,nextpos.x,nextpos.y,1)
 
-
-                    points.push(lastpos.x)
-                    points.push(lastpos.y)
-                    points.push(nextpos.x)
-                    points.push(nextpos.y)
+                    points.push(...result_points)
+                    // points.push(lastpos.y)
+                    // points.push(nextpos.x)
+                    // points.push(nextpos.y)
 
                     if (i % ARROWSTEP == 0) {
                         arrow_buffer.push([lastpos.x, lastpos.y, Math.atan2(field.y, field.x) + (charge.charge>0.0?Math.PI:Math.PI*2.0)])
