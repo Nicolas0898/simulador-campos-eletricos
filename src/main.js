@@ -39,10 +39,10 @@ function update(){
     ChargeParticle.clear_field_lines()
     // glRender.drawNormalBackground()
     // glRender.drawBackground(0)
-    glRender.drawFieldLines(charges)
+    glRender.drawFieldLines(ChargeParticle.Charges)
     // glRender.drawFieldVectorArrow(20)
     // glRender.drawLine([[new Point(10,10), new Point(100,100)]],1)
-    glRender.drawCharges(charges)
+    glRender.drawCharges(ChargeParticle.Charges)
     
     // glRender.drawArrow(400,400,10,Math.PI,1)
     

@@ -69,7 +69,6 @@ export class UserInteraction{
     onMouseMove(e){
         this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX,e.offsetY))
         if (this.mouseDown && this.selectedObject!=null){
-            console.log("aaaa")
             this.selectedObject.position = this.mousePos
         }
     }
@@ -81,6 +80,9 @@ export class UserInteraction{
             case "selection":
                 this.selectionDown()
                 break
+            case "create_charge":
+                new ChargeParticle(this.mousePos,-0.2)
+                this.setModeActive("selection")
             default:
                 this.setModeActive("selection")
         }
