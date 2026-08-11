@@ -5,6 +5,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import ChargeParticle from './classes/chargeParticle'
 import { Point } from './classes/generics'
 import { ContextRender, WebglRender } from './render'
+import { UserInteraction } from './classes/userInteraction'
 
 
 
@@ -25,25 +26,16 @@ const charges=[
 /**
  * @type {HTMLCanvasElement}
  */
-// var canvas = document.getElementById("maincanvas")
 var glcanvas = document.getElementById("glcanvas")
-
-// const render = new ContextRender(canvas)
 const glRender = new WebglRender(glcanvas)
+const userInteraction = new UserInteraction(glcanvas)
 /**
  * @type {WebGL2RenderingContext}
  */
 const gl = glRender.context
 
-// const charge1 = new ChargeParticle(new Point(400,200),-0.0002)
-// const charge2 = 
-// const charge3 = 
-// const charge4 = new ChargeParticle(new Point(200,600),0.02)
-
-
-
 function update(){
-    gl.clear(gl.COLOR_BUFFER_BIT)
+   
     ChargeParticle.clear_field_lines()
     // glRender.drawNormalBackground()
     // glRender.drawBackground(0)
@@ -59,11 +51,11 @@ function update(){
 }
 update()
 
-glcanvas.addEventListener("mousemove",e=>{
-    const rect = glcanvas.getBoundingClientRect()
-    console.log(rect)
-    charges[0].position.x = e.offsetX/rect.width * gl.canvas.width
-    charges[0].position.y = e.offsetY/rect.height * gl.canvas.height
-})
+// glcanvas.addEventListener("mousemove",e=>{
+//     const rect = glcanvas.getBoundingClientRect()
+//     console.log(rect)
+//     charges[0].position.x = e.offsetX/rect.width * gl.canvas.width
+//     charges[0].position.y = e.offsetY/rect.height * gl.canvas.height
+// })
 
 

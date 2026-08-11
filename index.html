@@ -9,28 +9,30 @@
   <body>
     <div class="container mt-2">
       
-      <main>
+      <main class="canvaswrapper d-flex justify-content-center align-items-center mx-auto flex-column">
 
         <!-- Canvas -->
         <canvas class="rounded d-block mx-auto img-fluid mb-3" id="glcanvas" width="800" height="800"></canvas>
         
         <section class="d-flex w-100 flex-row justify-content-between gap-2">
           <!-- Botões -->
-          <aside class="d-flex flex-column gap-2 justify-content-between">
-            <button class="tool-btn tool-btn-active rounded"><i class="bi bi-mouse"></i></button>
-            <button class="tool-btn rounded"><i class="bi bi-plus-circle-dotted"></i></button>
-            <button class="tool-btn rounded"><i class="bi bi-dot"></i></button>
+          <aside id="modeSelector" class="d-flex flex-column gap-2 justify-content-between">
+            <button data-mode="selection" class="tool-btn tool-btn-active rounded"><i class="bi bi-mouse"></i></button>
+            <button data-mode="create_charge" class="tool-btn rounded"><i class="bi bi-plus-circle-dotted"></i></button>
+            <button data-mode="create_test_charge" class="tool-btn rounded"><i class="bi bi-dot"></i></button>
           </aside>
           <!-- Menu de propriedades -->
-          <aside class="rounded bg-transparent-black p-3 flex-grow-1 property-bar">
+          <aside id="propertyMenu" class="rounded bg-transparent-black p-3 flex-grow-1 property-bar">
             <span class="mb-0 fw-bold">Propriedades</span>
             <span id="status">(nenhum objeto selecionado)</span>
-            <form>
+            <form id="propertyForm">
               
             </form>
           </aside>
         </section>
       </main>
+      <hr class="border">
+
         <!-- <canvas id="maincanvas" width="8000" height="8000"></canvas><br> -->
       <!-- x <input type="number" id="x" placeholder="x" value="10">
       y <input type="number" id="y" placeholder="y" value="10"> -->

@@ -8,6 +8,10 @@ canvas{
   border: black 1px solid;
 }
 
+.canvaswrapper{
+    max-width: 500px;
+}
+
 #status{
     font-size: 0.7em;
 }

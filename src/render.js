@@ -141,6 +141,10 @@ export class WebglRender {
         gl.viewport(0,0,gl.canvas.width,gl.canvas.height)
     }
 
+    clear(){
+        const gl = this.context
+        gl.clear(gl.COLOR_BUFFER_BIT)
+    }
     /**
      * 
      * @param {GLenum} type 
