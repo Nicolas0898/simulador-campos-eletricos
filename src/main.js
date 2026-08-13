@@ -34,13 +34,22 @@ const userInteraction = new UserInteraction(glcanvas)
  */
 const gl = glRender.context
 
+const lines = document.getElementById("lines")
+const arrows = document.getElementById("arrows")
 function update(){
-   
+    const bg = document.querySelector("[name='bg']:checked").value
     ChargeParticle.clear_field_lines()
+    glRender.clear()
     // glRender.drawNormalBackground()
-    // glRender.drawBackground(0)
-    glRender.drawFieldLines(ChargeParticle.Charges)
-    // glRender.drawFieldVectorArrow(20)
+    if(bg!="n"){
+        glRender.drawBackground(bg)
+    }
+    if(lines.checked){
+        glRender.drawFieldLines(ChargeParticle.Charges)
+    }
+    if(arrows.checked){
+        glRender.drawFieldVectorArrow(20)
+    }
     // glRender.drawLine([[new Point(10,10), new Point(100,100)]],1)
     glRender.drawCharges(ChargeParticle.Charges)
     

@@ -68,9 +68,7 @@ export class UserInteraction{
     }
 
     exportChargeProperties(){
-        for(let child of this.propertyForm){
-            child.remove()
-        }
+        this.propertyForm.innerHTML = ""
         const target = this.selectedObject
         if(!target) return
 
@@ -78,11 +76,28 @@ export class UserInteraction{
         const deleteButton = document.createElement("button")
         deleteButton.className = "btn btn-danger"
         deleteButton.innerText = "Excluir"
+
+        const positionspan = document.createElement("p")
+        positionspan.textContent = "Posição:"
+        positionspan.className = "m-0"
+        const wrapper = document.createElement("div")
+        wrapper.className = "d-flex justify-content-between"
+        const positionx = document.createElement("input")
+        positionx.type = "number"
+        positionx.placeholder = "x"
+        const positiony = document.createElement("input")
+        positiony.type = "number"
+        positiony.placeholder = "y"
         
         
         
         
         
+        
+        this.propertyForm.appendChild(positionspan)
+        this.propertyForm.appendChild(wrapper)
+        wrapper.appendChild(positionx)
+        wrapper.appendChild(positiony)
         this.propertyForm.appendChild(deleteButton)
 
 
@@ -104,7 +119,8 @@ export class UserInteraction{
                 this.selectionDown()
                 break
             case "create_charge":
-                new ChargeParticle(this.mousePos,-0.2)
+                const c = new ChargeParticle(this.mousePos,-0.2)
+                this.selectObject(c)
                 this.setModeActive("selection")
             default:
                 this.setModeActive("selection")
