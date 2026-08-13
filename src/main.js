@@ -13,9 +13,9 @@ import { UserInteraction } from './classes/userInteraction'
 //              PROGRAM
 /////////////////////////////////////////////
 const charges=[
-    new ChargeParticle(new Point(500,400),0.02),
+    new ChargeParticle(new Point(500,400),-0.02),
     new ChargeParticle(new Point(700,300),0.02),
-    new ChargeParticle(new Point(200,300),0.2),
+    // new ChargeParticle(new Point(200,300),0.2),
     // new ChargeParticle(new Point(100,700),0.02),
     // new ChargeParticle(new Point(800,700),-0.02),
     // new ChargeParticle(new Point(1000,300),0.02),

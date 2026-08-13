@@ -63,6 +63,29 @@ export class UserInteraction{
             this.status.innerHTML = "(nenhum objeto selecionado)"
         }
         this.selectedObject = object
+        this.exportChargeProperties()
+        
+    }
+
+    exportChargeProperties(){
+        for(let child of this.propertyForm){
+            child.remove()
+        }
+        const target = this.selectedObject
+        if(!target) return
+
+        // this.propertyForm.innerHTML = "<button>Excluir</button>"
+        const deleteButton = document.createElement("button")
+        deleteButton.className = "btn btn-danger"
+        deleteButton.innerText = "Excluir"
+        
+        
+        
+        
+        
+        this.propertyForm.appendChild(deleteButton)
+
+
     }
 
     // EVENT FUNCTIONS
