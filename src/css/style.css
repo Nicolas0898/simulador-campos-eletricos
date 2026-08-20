@@ -51,16 +51,33 @@ canvas{
     border: solid 1px black;
     background-color: rgb(0,0,0,0.2);
     color: white;
+    margin-bottom: 0.2em;
+    padding: 4px;
+}
+
+.w-49{
+    width: 49%;
+
+}
+
+#propertyForm button{
+    border-radius: 10px;
+    border: solid 1px black;
+    background-color: rgba(255, 130, 130, 0.2);
+    color: white;
     width: 49%;
     margin-bottom: 0.2em;
-    padding: 2px;
+    padding: 4px;
+    padding-left: 10px;
+    margin-top: 10px;
 }
+
 
 #propertyForm input:focus{
     outline: none;
 }
 #propertyForm input::placeholder{
-    color: whitesmoke;
+    color: rgb(255,255,255,0.5);
 }
 
 

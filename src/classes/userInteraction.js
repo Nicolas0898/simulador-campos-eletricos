@@ -74,7 +74,7 @@ export class UserInteraction{
 
         // this.propertyForm.innerHTML = "<button>Excluir</button>"
         const deleteButton = document.createElement("button")
-        deleteButton.className = "btn btn-danger"
+        deleteButton.className = ""
         deleteButton.innerText = "Excluir"
 
         const positionspan = document.createElement("p")
@@ -85,19 +85,54 @@ export class UserInteraction{
         const positionx = document.createElement("input")
         positionx.type = "number"
         positionx.placeholder = "x"
+        positionx.value = target.position.x.toFixed(2)
+        positionx.step = 0
         const positiony = document.createElement("input")
         positiony.type = "number"
+        positiony.value = target.position.y.toFixed(2)
         positiony.placeholder = "y"
+        positiony.step = 0
         
         
+        const chargespan = document.createElement("p")
+        chargespan.textContent = "Carga:"
+        chargespan.className = "m-0"
+
+        const charge = document.createElement("input")
+        charge.type = "number"
+        charge.placeholder = "carga"
+        charge.value = target.charge
+        charge.step = 0.01
+        const chargeRange = document.createElement("input")
+        chargeRange.type = "range"
+        chargeRange.placeholder = "carga"
+        chargeRange.value = target.charge
+        chargeRange.min = -2
+        chargeRange.max = 2
+        chargeRange.step = 0.01
+
+        charge.addEventListener("change",(e)=>{
+            target.charge = parseFloat(charge.value)
+            chargeRange.value = target.charge
+        })
+        chargeRange.addEventListener("input",()=>{
+             target.charge = parseFloat(chargeRange.value)
+             charge.value = target.charge
+        })
         
         
-        
+        deleteButton.addEventListener("click",()=>{
+            target.remove();
+            this.selectObject(null)
+        })
         
         this.propertyForm.appendChild(positionspan)
         this.propertyForm.appendChild(wrapper)
         wrapper.appendChild(positionx)
         wrapper.appendChild(positiony)
+        this.propertyForm.appendChild(chargespan)
+        this.propertyForm.appendChild(charge)
+        this.propertyForm.appendChild(chargeRange)
         this.propertyForm.appendChild(deleteButton)
 
 
@@ -108,6 +143,7 @@ export class UserInteraction{
         this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX,e.offsetY))
         if (this.mouseDown && this.selectedObject!=null){
             this.selectedObject.position = this.mousePos
+            this.exportChargeProperties()
         }
     }
 
@@ -135,7 +171,7 @@ export class UserInteraction{
         var selected = null
         for(let charge of ChargeParticle.Charges){
             var distance = charge.position.distance_to(this.mousePos)
-            if (distance<10.0){
+            if (distance<20.0){
                 selected = charge
             }
         }

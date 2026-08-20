@@ -76,6 +76,10 @@ export default class ChargeParticle extends NodeObj{
     }
   }
 
+  remove(){
+    ChargeParticle.Charges = ChargeParticle.Charges.filter(x=>x!=this)
+  }
+
   constructor(position,charge){
     super()
     this.position = position
