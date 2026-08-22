@@ -145,12 +145,13 @@ export class WebglRender {
         const gl = this.context
         gl.clear(gl.COLOR_BUFFER_BIT)
 
-        gl.useProgram(this.chargeProgram)
-        gl.bindVertexArray(this.chargeVAO)
+        // gl.useProgram(this.chargeProgram)
+        // gl.bindVertexArray(this.chargeVAO)
         // gl.uniform4fv(this.chargeUniforms.color,[0,0,0,0.5])
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
-        const size = gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(size), gl.STATIC_DRAW)
+        // gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        // const size = gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE)/
+        // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(size), gl.STATIC_DRAW)
+        // gl.bufferSubData(gl.ARRAY_BUFFER,0,new Float32Array(size))
         // gl.drawArrays(gl.TRIANGLES, 0, 0)
     }
     /**
@@ -383,6 +384,7 @@ export class WebglRender {
         gl.bindVertexArray(this.chargeVAO)
         // gl.uniform4fv(this.chargeUniforms.color,[0,0,0,0.5])
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, result_points.byteLength, gl.STATIC_DRAW)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
         gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
 
