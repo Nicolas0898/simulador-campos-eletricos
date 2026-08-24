@@ -413,7 +413,7 @@ export class WebglRender {
                 const field = ChargeParticle.get_field_from_array(new Point(x,y))
                 
                 buffer.push([x,y,Math.PI+Math.atan2(field.y,field.x)])
-                lb.push(clamp(field.magnitude()/6e+4,0,13))
+                lb.push(clamp(field.magnitude()/8e+4,0,10))
             }
         }
 

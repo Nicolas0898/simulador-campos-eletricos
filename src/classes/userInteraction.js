@@ -106,10 +106,10 @@ export class UserInteraction{
         const chargeRange = document.createElement("input")
         chargeRange.type = "range"
         chargeRange.placeholder = "carga"
-        chargeRange.value = target.charge
         chargeRange.min = -2
         chargeRange.max = 2
         chargeRange.step = 0.01
+        chargeRange.value = target.charge
 
         charge.addEventListener("change",(e)=>{
             target.charge = parseFloat(charge.value)
@@ -124,6 +124,13 @@ export class UserInteraction{
         deleteButton.addEventListener("click",()=>{
             target.remove();
             this.selectObject(null)
+        })
+
+        positionx.addEventListener("change",(e)=>{
+            target.position.x = parseFloat(positionx.value)
+        })
+        positiony.addEventListener("change",(e)=>{
+            target.position.y = parseFloat(positiony.value)
         })
         
         this.propertyForm.appendChild(positionspan)
