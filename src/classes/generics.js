@@ -23,7 +23,7 @@ export class Point{
   }
 
   magnitude(){
-    return Math.sqrt(Math.pow(this.x,2),Math.pow(this.y,2))
+    return Math.hypot(this.x,this.y)
   }
 
 

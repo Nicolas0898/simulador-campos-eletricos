@@ -113,9 +113,10 @@ export class WebglRender {
             const heatPos = gl.getUniformLocation(program,"heatmap");
             gl.activeTexture(gl.TEXTURE1)
             gl.bindTexture(gl.TEXTURE_2D,heatmapTexture)
-            gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,2,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([
-                0,0,0,255,
-                255,255,255,255,
+            gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,3,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([
+                0,0,100,255,
+                200,200,255,255,
+                255,200,255,255,
             ]))
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -328,16 +329,23 @@ export class WebglRender {
 
     }
 
-    drawArrow(buffer, length = 10, arc = 1) {
+    drawArrow(buffer, length = 10, arc = 1,lengthbuffer=[]) {
         const gl = this.context
         const result_points = new Float32Array(24 * buffer.length )
         let lastpos = 0
+        let i = 0
         for (let [x, y, angle] of buffer) {
-            const points = this.getArrowPoints(x, y, length, angle, arc)
+            let thislength = length
+            if(lengthbuffer.length != 0){
+                thislength = lengthbuffer[i]
+                i++
+            }
+            const points = this.getArrowPoints(x, y, thislength, angle, arc)
             // console.log(points)
             result_points.set(points, lastpos)
             lastpos += 24
         }
+        i++
         // console.log(result_points)
         gl.useProgram(this.chargeProgram)
         gl.bindVertexArray(this.chargeVAO)
@@ -394,17 +402,22 @@ export class WebglRender {
     }
 
     drawFieldVectorArrow(gridsize = 1) {
+        const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
         const gl = this.context
 
         var buffer = []
+        var lb = []
         for(let x=0;x<gl.canvas.width;x+=gridsize){
             for(let y=0;y<gl.canvas.height;y+=gridsize){
                 const field = ChargeParticle.get_field_from_array(new Point(x,y))
+                
                 buffer.push([x,y,Math.PI+Math.atan2(field.y,field.x)])
+                lb.push(clamp(field.magnitude()/6e+4,0,13))
             }
         }
 
-        this.drawArrow(buffer)
+        this.drawArrow(buffer,0,1,lb)
     }
 
 

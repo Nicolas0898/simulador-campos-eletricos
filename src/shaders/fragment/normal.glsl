@@ -40,7 +40,7 @@ void main(){
         vec4 leftcolor = vec4(0.0, 0.5, 0.5,1);
         vec4 downcolor = vec4(0.5, 0.0, 0.5,1);
         vec4 rightcolor = vec4(1.0, 0.5, 0.5,1);
-        float modu = dot(field,field);
+        float modu = dot(field.xyz,field.xyz);
         // float factor = field.z>0.0?1.0:-1.0;
 
         float updot = dot(normalize(field.xy),vec2(0.0,-1.0));
@@ -60,7 +60,7 @@ void main(){
         finalColor  += leftcolor*leftdot;
 
 
-        outColor += vec4(finalColor.xyz,1.0);
+        outColor += vec4(finalColor.xyz,clamp((log(modu)/log(1e+10)),0.01,1.0) ) ;
     }
     else if(type==1){
         // float normalized_field = (abs(field.z) + 1.1)/10e+5;
@@ -72,7 +72,7 @@ void main(){
         outColor = texture(heatmap,vec2(1.0-sigma,0.0));
     }
     else if(type==2){
-        float normalized_field = (abs(field.w))/2e+6 * (field.w>0.0?1.0:-1.0) ;
+        float normalized_field = (max(log(abs(field.w)/7e+3)/7.0,0.0)) * (field.w>0.0?1.0:-1.0) ;
         outColor = vec4(-normalized_field,0.0,normalized_field,abs(normalized_field));
     }
     // outColor = vec4(texture(heatmap,uv).rgb,1.0);
