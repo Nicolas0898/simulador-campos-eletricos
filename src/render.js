@@ -241,7 +241,7 @@ export class WebglRender {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
         // gl.bufferSubData()
-        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
 
         // console.log(result_points)
@@ -266,7 +266,7 @@ export class WebglRender {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
         // gl.bufferSubData()
-        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
 
         // console.log(result_points)
@@ -351,7 +351,7 @@ export class WebglRender {
         gl.bindVertexArray(this.chargeVAO)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
-        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
     }
 
     drawLine(buffer,length){
@@ -366,7 +366,7 @@ export class WebglRender {
         gl.bindVertexArray(this.chargeVAO)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
-        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
     }
 
 
@@ -394,7 +394,7 @@ export class WebglRender {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, result_points.byteLength, gl.STATIC_DRAW)
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
-        gl.drawArrays(gl.TRIANGLES, 0, result_points.length)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
         this.drawArrow(arrowbuffer)
 
