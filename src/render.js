@@ -39,8 +39,8 @@ export class WebglRender {
     normalUniforms = {}
 
     static NUMBER_OF_LINE_STEPS = 400
-    static TEST_CHARGE_FIELD_SCALE = 0.1
-    static TEST_CHARGE_FORCE_SCALE = 0.3
+    static TEST_CHARGE_FIELD_SCALE = 1
+    static TEST_CHARGE_FORCE_SCALE = 3
 
     constructor(canvas) {
         this.canvas = canvas
@@ -265,7 +265,7 @@ export class WebglRender {
         for (let charge of array) {
             const points = this.createCirclePoints(charge.position.x, charge.position.y, 5)
             
-            const fv = ChargeParticle.get_field_from_array(charge.position).multiply(WebglRender.TEST_CHARGE_FIELD_SCALE)
+            const fv = ChargeParticle.get_field_from_array(charge.position).multiply(WebglRender.TEST_CHARGE_FIELD_SCALE).multiply(charge.scale)
             const fvp = [
                 ...this.getLinePoints(
                     charge.position.x,
@@ -283,7 +283,7 @@ export class WebglRender {
 
             ]
             
-            const ev = charge.getForce().multiply(WebglRender.TEST_CHARGE_FORCE_SCALE)
+            const ev = charge.getForce().multiply(WebglRender.TEST_CHARGE_FORCE_SCALE).multiply(charge.scale)
             const evp = [
                 ...this.getLinePoints(
                     charge.position.x,

@@ -6,6 +6,7 @@ export default class testCharge extends NodeObj{
     static testCharges = []
     charge = 0.0
     name = "Carga de Teste"
+    scale = 0.15
 
     getForce(){
         var field_vec = ChargeParticle.get_field_from_array(this.position)
@@ -13,6 +14,7 @@ export default class testCharge extends NodeObj{
 
         return force
     }
+
 
     remove(){
         testCharge.testCharges = testCharge.testCharges.filter(x=> x!=this)
