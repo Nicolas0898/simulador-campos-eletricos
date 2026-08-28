@@ -39,6 +39,8 @@ export class WebglRender {
     normalUniforms = {}
 
     static NUMBER_OF_LINE_STEPS = 400
+    static TEST_CHARGE_FIELD_SCALE = 0.1
+    static TEST_CHARGE_FORCE_SCALE = 0.3
 
     constructor(canvas) {
         this.canvas = canvas
@@ -207,7 +209,7 @@ export class WebglRender {
      * @returns {Float32Array}
      */
     createCirclePoints(cx, cy, r, POINTS = 20) {
-        var array = new Float32Array(20 * 6)
+        var array = new Float32Array(POINTS * 6)
 
         for (let p = 0; p < POINTS; p++) {
             const angle = Math.PI * 2 * (p / POINTS)
@@ -233,6 +235,7 @@ export class WebglRender {
         for (let charge of array) {
             const points = this.createCirclePoints(charge.position.x, charge.position.y, 5)
             result_points.set(points, lastpos)
+
             lastpos += points.length
         }
 
@@ -243,6 +246,88 @@ export class WebglRender {
         // gl.bufferSubData()
         gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
+
+        // console.log(result_points)
+    }
+
+    drawTestCharges(charge, ...args) {
+        const gl = this.context
+        var array = Array.isArray(charge) ? [...charge, ...args] : [charge, ...args]
+
+        var result_points = new Float32Array(20 * 6 * array.length)
+        var field_vector_points = new Float32Array((36) *array.length)
+        var force_vector_points = new Float32Array((36) *array.length)
+
+        
+        
+        let lastpos = 0
+        let vector_laspos = 0
+        for (let charge of array) {
+            const points = this.createCirclePoints(charge.position.x, charge.position.y, 5)
+            
+            const fv = ChargeParticle.get_field_from_array(charge.position).multiply(WebglRender.TEST_CHARGE_FIELD_SCALE)
+            const fvp = [
+                ...this.getLinePoints(
+                    charge.position.x,
+                    charge.position.y,
+                    charge.position.x + fv.x,
+                    charge.position.y + fv.y,
+                    3
+                ),
+                ...this.getArrowPoints(
+                    charge.position.x + fv.x,
+                    charge.position.y + fv.y,
+                    17,
+                    Math.atan2(fv.y,fv.x) + Math.PI
+                )
+
+            ]
+            
+            const ev = charge.getForce().multiply(WebglRender.TEST_CHARGE_FORCE_SCALE)
+            const evp = [
+                ...this.getLinePoints(
+                    charge.position.x,
+                    charge.position.y,
+                    charge.position.x + ev.x,
+                    charge.position.y + ev.y,
+                    3
+                ),
+                ...this.getArrowPoints(
+                    charge.position.x + ev.x,
+                    charge.position.y + ev.y,
+                    17,
+                    Math.atan2(ev.y,ev.x) + Math.PI
+                )
+
+            ]
+
+
+            // console.log(fvp.length)
+            field_vector_points.set(fvp, vector_laspos)
+            force_vector_points.set(evp, vector_laspos)
+            result_points.set(points, lastpos)
+            vector_laspos += fvp.length
+            lastpos += points.length
+        }
+
+        gl.useProgram(this.chargeProgram)
+        gl.bindVertexArray(this.chargeVAO)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        
+        // Draw Points
+        
+        gl.uniform4fv(this.chargeUniforms.color, [0.1, 0.1, 0.75, 1.0])
+        gl.bufferData(gl.ARRAY_BUFFER, field_vector_points, gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES, 0, field_vector_points.length/2.0)
+        
+        gl.uniform4fv(this.chargeUniforms.color, [0.1, 0.75, 0.1, 1.0])
+        gl.bufferData(gl.ARRAY_BUFFER, force_vector_points, gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES, 0, force_vector_points.length/2.0)
+        
+        
+        gl.uniform4fv(this.chargeUniforms.color, [0, 0, 0, 1.0])
+        gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
         // console.log(result_points)
     }

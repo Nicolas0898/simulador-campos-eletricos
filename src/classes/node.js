@@ -3,6 +3,9 @@ export class NodeObj{
     id = 0
     name
 
+  /** @type {Point} */
+  position
+
     constructor(){
         NodeObj.globalid+=1
         this.id=NodeObj.globalid

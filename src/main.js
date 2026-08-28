@@ -6,6 +6,7 @@ import ChargeParticle from './classes/chargeParticle'
 import { Point } from './classes/generics'
 import { ContextRender, WebglRender } from './render'
 import { UserInteraction } from './classes/userInteraction'
+import testCharge from './classes/testCharge'
 
 
 
@@ -52,6 +53,7 @@ function update(){
     }
     // glRender.drawLine([[new Point(10,10), new Point(100,100)]],1)
     glRender.drawCharges(ChargeParticle.Charges)
+    glRender.drawTestCharges(testCharge.testCharges)
     
     // glRender.drawArrow(400,400,10,Math.PI,1)
     

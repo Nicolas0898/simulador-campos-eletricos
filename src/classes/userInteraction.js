@@ -1,5 +1,6 @@
 import ChargeParticle from "./chargeParticle"
 import { Point } from "./generics"
+import testCharge from "./testCharge"
 
 export class UserInteraction{
     // HTML Elements
@@ -78,7 +79,7 @@ export class UserInteraction{
         deleteButton.innerText = "Excluir"
 
         const positionspan = document.createElement("p")
-        positionspan.textContent = "Posição:"
+        positionspan.textContent = "Posição (Metros):"
         positionspan.className = "m-0"
         const wrapper = document.createElement("div")
         wrapper.className = "d-flex justify-content-between"
@@ -95,7 +96,7 @@ export class UserInteraction{
         
         
         const chargespan = document.createElement("p")
-        chargespan.textContent = "Carga:"
+        chargespan.textContent = "Carga (Coulomb):"
         chargespan.className = "m-0"
 
         const charge = document.createElement("input")
@@ -106,12 +107,12 @@ export class UserInteraction{
         const chargeRange = document.createElement("input")
         chargeRange.type = "range"
         chargeRange.placeholder = "carga"
-        chargeRange.min = -2
-        chargeRange.max = 2
-        chargeRange.step = 0.01
+        chargeRange.min = -0.2
+        chargeRange.max = 0.2
+        chargeRange.step = 0.00001
         chargeRange.value = target.charge
 
-        charge.addEventListener("change",(e)=>{
+        charge.addEventListener("input",(e)=>{
             target.charge = parseFloat(charge.value)
             chargeRange.value = target.charge
         })
@@ -132,6 +133,7 @@ export class UserInteraction{
         positiony.addEventListener("change",(e)=>{
             target.position.y = parseFloat(positiony.value)
         })
+
         
         this.propertyForm.appendChild(positionspan)
         this.propertyForm.appendChild(wrapper)
@@ -140,9 +142,36 @@ export class UserInteraction{
         this.propertyForm.appendChild(chargespan)
         this.propertyForm.appendChild(charge)
         this.propertyForm.appendChild(chargeRange)
+
+        // SE FOR UMA CARGA DE TESTE
+        if(target instanceof testCharge){
+            const resultspan = document.createElement("p")
+            resultspan.className = "mb-0 fw-bold"
+            resultspan.innerText = "Resultados:"
+            
+            const eletricalfieldintensity = document.createElement("p")
+            var efiv = ChargeParticle.get_field_from_array(target.position)
+            eletricalfieldintensity.className = "mb-0"
+            eletricalfieldintensity.innerHTML = `Intensidade do campo elétrico: <span>${efiv.magnitude().toFixed(2)}N</span>`
+            
+            
+            const eletricalfieldforce = document.createElement("p")
+            function updateForce(){
+                var eff = target.getForce()
+                eletricalfieldforce.className = "mb-0"
+                eletricalfieldforce.innerHTML = `Força Elétrica: <span>${eff.magnitude().toFixed(2)}N</span>`
+            }
+            
+            chargeRange.addEventListener("input",updateForce)
+            charge.addEventListener("change",updateForce)
+            updateForce()
+
+            this.propertyForm.appendChild(resultspan)
+            this.propertyForm.appendChild(eletricalfieldintensity)
+            this.propertyForm.appendChild(eletricalfieldforce)
+        }
+
         this.propertyForm.appendChild(deleteButton)
-
-
     }
 
     // EVENT FUNCTIONS
@@ -165,6 +194,11 @@ export class UserInteraction{
                 const c = new ChargeParticle(this.mousePos,-0.2)
                 this.selectObject(c)
                 this.setModeActive("selection")
+                break
+            case "create_test_charge":
+                const tc = new testCharge(this.mousePos,-0.2)
+                this.selectObject(tc)
+                this.setModeActive("selection")
             default:
                 this.setModeActive("selection")
         }
@@ -176,7 +210,7 @@ export class UserInteraction{
 
     selectionDown(e){
         var selected = null
-        for(let charge of ChargeParticle.Charges){
+        for(let charge of [...ChargeParticle.Charges,...testCharge.testCharges]){
             var distance = charge.position.distance_to(this.mousePos)
             if (distance<20.0){
                 selected = charge

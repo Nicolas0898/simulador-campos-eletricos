@@ -2,8 +2,6 @@ import { Point } from "./generics"
 import { NodeObj } from "./node"
 
 export default class ChargeParticle extends NodeObj{
-  /** @type {Point} */
-  position
   /** @type {number} */
   charge
   K = 9*Math.pow(10,9)
