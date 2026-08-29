@@ -132,13 +132,11 @@ export class UserInteraction {
     }
 
     selectionDown(e) {
-        const isMobile = navigator.userAgentData.mobile;
-        console.log(isMobile)
-        console.log("selectiondown")
+        const selection_distance = (e instanceof TouchEvent)?35:20
         var selected = null
         for (let charge of [...ChargeParticle.Charges, ...testCharge.testCharges]) {
             var distance = charge.position.distance_to(this.mousePos)
-            if (distance < 20.0) {
+            if (distance < selection_distance) {
                 selected = charge
             }
         }
