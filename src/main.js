@@ -16,8 +16,6 @@ import SimulatorConfiguration from './classes/configuration'
 //              PROGRAM
 /////////////////////////////////////////////
 
-new ChargeParticle(new Point(500,400),-0.02)
-new ChargeParticle(new Point(700,300),0.02)
 
 /**
  * @type {HTMLCanvasElement}

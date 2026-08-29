@@ -3,11 +3,11 @@ import ChargeParticle from "./chargeParticle"
 import testCharge from "./testCharge"
 
 export default class SimulatorConfiguration {
-    static scale = 1
+    static scale = .01
     static scale_diff = 1
     static normalize_vectors = true
-    static enable_grid = false
-    static grid_size = 10
+    static enable_grid = true
+    static grid_size = 1
 
     static currentRenderer
     static currentUserInteraction
