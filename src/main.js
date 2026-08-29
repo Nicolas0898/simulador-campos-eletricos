@@ -43,6 +43,9 @@ function update(){
     if(bg!="n"){
         glRender.drawBackground(bg)
     }
+    if(SimulatorConfiguration.enable_grid){
+        glRender.drawGrid()
+    }
     if(lines.checked){
         glRender.drawFieldLines(ChargeParticle.Charges)
     }
@@ -60,10 +63,16 @@ function update(){
 }
 update()
 
+document.querySelectorAll("form").forEach(e=>{
+    e.addEventListener("submit",e2=>{
+        e2.preventDefault()
+        return false
+    })
+})
+
 // glcanvas.addEventListener("mousemove",e=>{
 //     const rect = glcanvas.getBoundingClientRect()
-//     console.log(rect)
+//     //console.log(rect)
 //     charges[0].position.x = e.offsetX/rect.width * gl.canvas.width
 //     charges[0].position.y = e.offsetY/rect.height * gl.canvas.height
 // })
-SimulatorConfiguration.printInfo()

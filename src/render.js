@@ -107,7 +107,7 @@ export class WebglRender {
             gl.bindTexture(gl.TEXTURE_2D,texture)
             
             const [data_texture,points] = ChargeParticle.charges_to_texture()
-            console.log(data_texture,points)
+            //console.log(data_texture,points)
             
             gl.pixelStorei(gl.UNPACK_ALIGNMENT,1)
             gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,1,points,0,gl.RGB,gl.FLOAT,data_texture)
@@ -173,13 +173,13 @@ export class WebglRender {
         var compiled_source = source
 
         for (const [regex, replacement] of GLSL_MACROS) {
-            console.log(regex, replacement)
+            //console.log(regex, replacement)
             /** @type {RegExp} */
             // const regex = new RegExp(pattern,"g")
-            console.log(regex)
+            //console.log(regex)
             compiled_source = compiled_source.replace(regex, replacement)
         }
-        console.log(compiled_source)
+        //console.log(compiled_source)
 
         gl.shaderSource(shader, compiled_source)
         gl.compileShader(shader)
@@ -252,7 +252,7 @@ export class WebglRender {
         gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
 
-        // console.log(result_points)
+        // //console.log(result_points)
     }
 
     drawTestCharges(charge, ...args) {
@@ -313,7 +313,7 @@ export class WebglRender {
             ]
 
 
-            // console.log(fvp.length)
+            // //console.log(fvp.length)
             field_vector_points.set(fvp, vector_laspos)
             force_vector_points.set(evp, vector_laspos)
             result_points.set(points, lastpos)
@@ -340,7 +340,7 @@ export class WebglRender {
         gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
         gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
-        // console.log(result_points)
+        // //console.log(result_points)
     }
 
 
@@ -365,7 +365,7 @@ export class WebglRender {
         gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
 
 
-        // console.log(result_points)
+        // //console.log(result_points)
     }
     drawBackground(type=1) {
         const gl = this.context
@@ -437,12 +437,12 @@ export class WebglRender {
                 i++
             }
             const points = this.getArrowPoints(x, y, thislength, angle, arc)
-            // console.log(points)
+            // //console.log(points)
             result_points.set(points, lastpos)
             lastpos += 24
         }
         i++
-        // console.log(result_points)
+        // //console.log(result_points)
         gl.useProgram(this.chargeProgram)
         gl.bindVertexArray(this.chargeVAO)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
@@ -473,13 +473,13 @@ export class WebglRender {
         let result_points = new Float32Array(WebglRender.NUMBER_OF_LINE_STEPS * lines * 12 * array.length)
         let arrowbuffer = []
 
-        // console.log(result_points)
+        // //console.log(result_points)
         let lastpos = 0
         for (let charge of array) {
-            // console.log(charge)
+            // //console.log(charge)
             const [points, arrows] = this.calculatePathFromCharge(charge, lines)
             arrowbuffer.push(...arrows)
-            // console.log(points)
+            // //console.log(points)
             result_points.set(points, lastpos)
             lastpos += points.length
         }
@@ -494,7 +494,7 @@ export class WebglRender {
 
         this.drawArrow(arrowbuffer)
 
-        // console.log(result_points)
+        // //console.log(result_points)
     }
 
     drawFieldVectorArrow(gridsize = 1) {
@@ -516,6 +516,42 @@ export class WebglRender {
         this.drawArrow(buffer,0,1,lb)
     }
 
+    drawGrid(){
+        const gl = this.context
+        const scale = SimulatorConfiguration.scale
+        const gridsize = SimulatorConfiguration.grid_size/scale
+        if(gridsize==0) return
+
+        const arr = []
+        gl.useProgram(this.chargeProgram)
+        gl.bindVertexArray(this.chargeVAO)
+
+        for(let i = 0;i<gl.canvas.width;i+=gridsize){
+            arr.push(
+                ...this.getLinePoints(
+                    i,0,
+                    i,gl.canvas.height,
+                    1.0
+                ))
+        }
+
+        for(let j = 0;j<gl.canvas.width;j+=gridsize){
+            arr.push(
+                ...this.getLinePoints(
+                    0,j,
+                    gl.canvas.width,j,
+                    1.0
+                ))
+        }
+        const result_points = new Float32Array(arr)
+        // gl.uniform4fv(this.chargeUniforms.color,[0,0,0,0.5])
+        gl.uniform4fv(this.chargeUniforms.color,[0,0,0,0.30])
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.chargeBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, result_points, gl.STATIC_DRAW)
+        gl.drawArrays(gl.TRIANGLES, 0, result_points.length/2.0)
+        gl.uniform4fv(this.chargeUniforms.color,[0,0,0,1])
+    }
+
 
     calculatePathFromCharge(charge, LINES = 8, ARROWSTEP = 15) {
         // if (charge.charge < 0) return [[], []]
@@ -533,7 +569,7 @@ export class WebglRender {
         }        
         let negative_dominant = nn>pn
         // negative_dominant = false
-        // console.log(negative_dominant)
+        // //console.log(negative_dominant)
 
         if(charge.charge<0 &&! negative_dominant){
             return [[],[]]
@@ -544,7 +580,7 @@ export class WebglRender {
         for (let line = 0; line < LINES; line++) {
             const angle = line / LINES * 2 * Math.PI
             let lastpos = new Point(charge.position.x + Math.cos(angle), charge.position.y + Math.sin(angle))
-            // console.log(charge.charge,charge.fieldLines)
+            // //console.log(charge.charge,charge.fieldLines)
             for (let i = 0; i < WebglRender.NUMBER_OF_LINE_STEPS; i++) {
                 let field = ChargeParticle.get_field_from_array(lastpos)
                 field = field.normalize()
@@ -554,11 +590,11 @@ export class WebglRender {
                 let nextpos = new Point(lastpos.x + field.x, lastpos.y + field.y)
                 const closestCharge = ChargeParticle.get_closest(lastpos,charge)
                 
-                // console.log(closestCharge)
+                // //console.log(closestCharge)
 
-                // console.log(field.dot(field))
+                // //console.log(field.dot(field))
 
-                // console.log(closestCharge.position.distance_to(lastpos))
+                // //console.log(closestCharge.position.distance_to(lastpos))
                 if (closestCharge && closestCharge.position.distance_to(lastpos) < step*1.0) {
                     closestCharge.fieldLines.push(lastpos)
                     break
@@ -575,7 +611,7 @@ export class WebglRender {
                     }
                 }
 
-                // console.log(i%10)
+                // //console.log(i%10)
                 lastpos = nextpos
             }
         }
@@ -674,9 +710,9 @@ export class ContextRender {
             for (let y = 0; y < this.canvas.width; y += step) {
                 // this.drawPoint(new Point(x,y))
                 var vec = ChargeParticle.get_field_from_array(new Point(x, y))
-                console.log(ChargeParticle.Charges)
+                //console.log(ChargeParticle.Charges)
                 vec = vec.normalize()
-                console.log(vec)
+                //console.log(vec)
                 const angle = Math.atan2(vec.x, vec.y)
                 vec = vec.multiply(15)
 
@@ -710,7 +746,7 @@ export class ContextRender {
                 let field = ChargeParticle.get_field_from_array(lastpos)
                 field = field.normalize()
                 let nextpos = new Point(lastpos.x + field.x, lastpos.y + field.y)
-                // console.log(i%10)
+                // //console.log(i%10)
                 if ((i % 100) == 0) {
                     this.drawArrow(lastpos.x, lastpos.y, nextpos.x, nextpos.y, 8, Math.PI / 6.0, false)
                     this.context.moveTo(nextpos.x, nextpos.y)

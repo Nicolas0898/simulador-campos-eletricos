@@ -22,7 +22,7 @@ export default class ChargeParticle extends NodeObj {
     if (!isFinite(mod)) {
       return new Point(0, 0)
     }
-    // console.log(mod)
+    // //console.log(mod)
     return dir.multiply(mod)
   }
 
@@ -99,7 +99,7 @@ export default class ChargeParticle extends NodeObj {
     this.charge = charge
     ChargeParticle.Charges.push(this)
     ChargeParticle.Charges = ChargeParticle.Charges.sort((a, b) => b.charge - a.charge)
-    console.log(ChargeParticle.Charges)
+    //console.log(ChargeParticle.Charges)
     this.name = "Carga"
   }
 }

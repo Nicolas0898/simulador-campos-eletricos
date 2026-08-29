@@ -34,6 +34,19 @@ export class UserInteraction {
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this))
     }
 
+    /** @param {Point} pos  */
+    getQuantPos(pos){
+        const scale = SimulatorConfiguration.scale
+        const size = SimulatorConfiguration.grid_size/scale
+        if(size==0|!SimulatorConfiguration.enable_grid){
+            return pos
+        }else{
+            
+            pos = pos.divide(size).round().multiply(size)
+            return pos
+        }
+    }
+
     convertClientPosToCanvasPos(pos) {
         const bounding_box = this.canvas.getBoundingClientRect()
         return new Point((pos.x / bounding_box.width) * this.gl.canvas.width, (pos.y / bounding_box.height) * this.gl.canvas.height)
@@ -49,7 +62,7 @@ export class UserInteraction {
             }
         }
         this.activeMode = name
-        // console.log(this.activeMode)
+        // //console.log(this.activeMode)
     }
 
     selectObject(object) {
@@ -60,25 +73,25 @@ export class UserInteraction {
     onMouseMove(e) {
         this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX, e.offsetY))
         if (this.mouseDown && this.propertyHandler.target != null) {
-            this.propertyHandler.target.position = this.mousePos
+            this.propertyHandler.target.position = this.getQuantPos(this.mousePos)
             this.propertyHandler.updateUI()
         }
     }
 
     onMouseDown(e) {
         this.mouseDown = true
-        console.log("pressed with:", this.activeMode)
+        //console.log("pressed with:", this.activeMode)
         switch (this.activeMode) {
             case "selection":
                 this.selectionDown()
                 break
             case "create_charge":
-                const c = new ChargeParticle(this.mousePos, -0.2)
+                const c = new ChargeParticle(this.getQuantPos(this.mousePos), -0.002)
                 this.selectObject(c)
                 this.setModeActive("selection")
                 break
             case "create_test_charge":
-                const tc = new testCharge(this.mousePos, -0.2)
+                const tc = new testCharge(this.getQuantPos(this.mousePos), -0.002)
                 this.selectObject(tc)
                 this.setModeActive("selection")
                 break
@@ -99,7 +112,7 @@ export class UserInteraction {
                 selected = charge
             }
         }
-        console.log(selected)
+        //console.log(selected)
         this.selectObject(selected)
     }
 }
@@ -147,13 +160,13 @@ class PropertyHandler {
         if (object != this.target) {
             this.propertyForm.innerHTML = ""
         }
-        console.log(this.target)
+        //console.log(this.target)
 
         if (object == this.target) {
             this.updateUI()
         } else if (object) {
             this.target = object
-            console.log("aa")
+            //console.log("aa")
             this.generateUI()
             this.updateUI()
         }
@@ -241,9 +254,9 @@ class PropertyHandler {
 
 
         this.propertyForm.appendChild(deleteButton)
-        console.log(deleteButton)
-        console.log(this.propertyForm)
-        console.log("generatedUI")
+        //console.log(deleteButton)
+        //console.log(this.propertyForm)
+        //console.log("generatedUI")
     }
 
 

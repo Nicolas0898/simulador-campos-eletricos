@@ -55,8 +55,12 @@ export class Point{
     return new Point(this.x*n,this.y*n)
   }
 
+  round(){
+    return new Point(Math.round(this.x),Math.round(this.y))
+  }
+
   dot(other){
-    // console.log(this.x,this.y,other.x,other.y)
+    // //console.log(this.x,this.y,other.x,other.y)
     return (this.x*other.x+this.y*other.y)
   }
 }
