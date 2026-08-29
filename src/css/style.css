@@ -72,6 +72,11 @@ canvas{
     margin-top: 10px;
 }
 
+.answer{
+    background-color: rgb(0,0,0,0.5);
+    padding: 1px;
+    border-radius: 2px;
+}
 
 #propertyForm input:focus{
     outline: none;

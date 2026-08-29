@@ -7,6 +7,7 @@ uniform sampler2D heatmap;
 uniform int point_n;
 uniform vec2 resolution;
 uniform int type;
+uniform float scale;
 const float K = 9e+10;
 const float E = 2.718282f;
 
@@ -20,8 +21,8 @@ vec4 get_field(){
         vec2 delta = (cord-data.xy);
         float r = dot(delta,delta); 
 
-        final_E += delta * K * (data.z/pow(r,2.0));
-        elpontential += K * (data.z/r);
+        final_E += delta * K * (data.z/pow(r*scale,2.0));
+        elpontential += K * (data.z/(r*scale));
     }
 
     return vec4(final_E,dot(final_E,final_E),elpontential);

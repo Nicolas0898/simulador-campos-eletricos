@@ -3,6 +3,7 @@ import { Point } from "./classes/generics"
 import charge from './shaders/vertex/charge.glsl?raw'
 import solid from './shaders/fragment/solid.glsl?raw'
 import normalFragment from './shaders/fragment/normal.glsl?raw'
+import SimulatorConfiguration from "./classes/configuration"
 
 const GLSL_MACROS = [
     [/#clip ?\(\s*(\w+)\s*,\s*(\w+)\s*\)/gm, "(($1/$2 - 0.5) * 2.0) * vec2(1,-1)"]
@@ -39,8 +40,9 @@ export class WebglRender {
     normalUniforms = {}
 
     static NUMBER_OF_LINE_STEPS = 400
+    static STEP_AMT = 8
     static TEST_CHARGE_FIELD_SCALE = 1
-    static TEST_CHARGE_FORCE_SCALE = 3
+    static TEST_CHARGE_FORCE_SCALE = 1
 
     constructor(canvas) {
         this.canvas = canvas
@@ -84,11 +86,13 @@ export class WebglRender {
             const resolutionPos = gl.getUniformLocation(this.normalProgram, "resolution")
             const point_n = gl.getUniformLocation(this.normalProgram, "point_n")
             const typePos = gl.getUniformLocation(this.normalProgram, "type")
+            const scalePos = gl.getUniformLocation(this.normalProgram, "scale")
 
             this.normalUniforms.inputPos = inputPos
             this.normalUniforms.resolutionPos = resolutionPos
             this.normalUniforms.point_n = point_n
             this.normalUniforms.type = typePos
+            this.normalUniforms.scale = scalePos
 
             const vao = gl.createVertexArray()
             this.normalVAO = vao
@@ -136,6 +140,7 @@ export class WebglRender {
             gl.uniform2fv(resolutionPos, [gl.canvas.width, gl.canvas.height])
             gl.uniform1i(point_n,points)
             gl.uniform1i(typePos,1)
+            gl.uniform1f(scalePos,1)
 
 
         }
@@ -265,7 +270,10 @@ export class WebglRender {
         for (let charge of array) {
             const points = this.createCirclePoints(charge.position.x, charge.position.y, 5)
             
-            const fv = ChargeParticle.get_field_from_array(charge.position).multiply(WebglRender.TEST_CHARGE_FIELD_SCALE).multiply(charge.scale)
+            let fv = ChargeParticle.get_field_from_array(charge.position).multiply(WebglRender.TEST_CHARGE_FIELD_SCALE).multiply(charge.scale)
+            if(SimulatorConfiguration.normalize_vectors){
+                fv = fv.normalize().multiply(80)
+            }
             const fvp = [
                 ...this.getLinePoints(
                     charge.position.x,
@@ -283,7 +291,10 @@ export class WebglRender {
 
             ]
             
-            const ev = charge.getForce().multiply(WebglRender.TEST_CHARGE_FORCE_SCALE).multiply(charge.scale)
+            let ev = charge.getForce().multiply(WebglRender.TEST_CHARGE_FORCE_SCALE).multiply(charge.scale)
+            if(SimulatorConfiguration.normalize_vectors){
+                ev = ev.normalize().multiply(60)
+            }
             const evp = [
                 ...this.getLinePoints(
                     charge.position.x,
@@ -455,7 +466,7 @@ export class WebglRender {
     }
 
 
-    drawFieldLines(charges, step = 8, lines = 20) {
+    drawFieldLines(charges, lines = 20) {
         const gl = this.context
         let array = Array.isArray(charges) ? charges : [charges]
 
@@ -466,7 +477,7 @@ export class WebglRender {
         let lastpos = 0
         for (let charge of array) {
             // console.log(charge)
-            const [points, arrows] = this.calculatePathFromCharge(charge, step, lines)
+            const [points, arrows] = this.calculatePathFromCharge(charge, lines)
             arrowbuffer.push(...arrows)
             // console.log(points)
             result_points.set(points, lastpos)
@@ -506,8 +517,10 @@ export class WebglRender {
     }
 
 
-    calculatePathFromCharge(charge, step = 1, LINES = 8, ARROWSTEP = 15) {
+    calculatePathFromCharge(charge, LINES = 8, ARROWSTEP = 15) {
         // if (charge.charge < 0) return [[], []]
+        const step = WebglRender.STEP_AMT
+        ARROWSTEP *= (8/step)
         var points = []
         var arrow_buffer = []
         let nn=0,pn=0
@@ -568,6 +581,13 @@ export class WebglRender {
         }
 
         return [points, arrow_buffer]
+    }
+
+    setScale(number){
+        const gl = this.context
+        gl.useProgram(this.normalProgram)
+        gl.uniform1f(this.normalUniforms.scale,number)
+        gl.useProgram(null)
     }
 
 }

@@ -7,6 +7,8 @@ import { Point } from './classes/generics'
 import { ContextRender, WebglRender } from './render'
 import { UserInteraction } from './classes/userInteraction'
 import testCharge from './classes/testCharge'
+import 'bootstrap/dist/js/bootstrap'
+import SimulatorConfiguration from './classes/configuration'
 
 
 
@@ -23,6 +25,9 @@ new ChargeParticle(new Point(700,300),0.02)
 var glcanvas = document.getElementById("glcanvas")
 const glRender = new WebglRender(glcanvas)
 const userInteraction = new UserInteraction(glcanvas)
+SimulatorConfiguration.setup()
+SimulatorConfiguration.currentRenderer = glRender
+SimulatorConfiguration.currentUserInteraction = userInteraction
 /**
  * @type {WebGL2RenderingContext}
  */
@@ -61,5 +66,4 @@ update()
 //     charges[0].position.x = e.offsetX/rect.width * gl.canvas.width
 //     charges[0].position.y = e.offsetY/rect.height * gl.canvas.height
 // })
-
-
+SimulatorConfiguration.printInfo()

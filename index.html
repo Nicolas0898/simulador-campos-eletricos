@@ -1,54 +1,122 @@
 <!doctype html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>campoeletrico</title>
-  </head>
-  <body>
-    <div class="container mt-2">
-      
-      <main class="canvaswrapper d-flex justify-content-center align-items-center mx-auto flex-column">
 
-        <!-- Canvas -->
-        <canvas class="rounded d-block mx-auto img-fluid mb-3" id="glcanvas" width="800" height="800"></canvas>
-        
-        <section class="d-flex w-100 flex-row justify-content-between gap-2">
-          <!-- Botões -->
-          <aside id="modeSelector" class="d-flex flex-column gap-2">
-            <button data-mode="selection" class="tool-btn tool-btn-active rounded"><i class="bi bi-mouse"></i></button>
-            <button data-mode="create_charge" class="tool-btn rounded"><i class="bi bi-plus-circle-dotted"></i></button>
-            <button data-mode="create_test_charge" class="tool-btn rounded"><i class="bi bi-dot"></i></button>
-          </aside>
-          <!-- Menu de propriedades -->
-          <aside id="propertyMenu" class="rounded bg-transparent-black p-3 flex-grow-1 property-bar">
-            <span class="mb-0 fw-bold">Propriedades</span>
-            <span id="status">(nenhum objeto selecionado)</span>
-            <div id="propertyForm">
-              
+<head>
+  <meta charset="UTF-8" />
+  <!-- <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>campoeletrico</title>
+</head>
+
+<body>
+  <div class="container mt-2">
+
+    <main class="canvaswrapper d-flex justify-content-center align-items-center mx-auto flex-column">
+
+      <!-- Canvas -->
+      <canvas class="rounded d-block mx-auto img-fluid mb-3" id="glcanvas" width="800" height="800"></canvas>
+
+      <section class="d-flex w-100 flex-row justify-content-between gap-2">
+        <!-- Botões -->
+        <aside id="modeSelector" class="d-flex flex-column gap-2">
+          <button data-mode="selection" class="tool-btn tool-btn-active rounded"><i class="bi bi-mouse"></i></button>
+          <button data-mode="create_charge" class="tool-btn rounded"><i class="bi bi-plus-circle-dotted"></i></button>
+          <button data-mode="create_test_charge" class="tool-btn rounded"><i class="bi bi-dot"></i></button>
+        </aside>
+        <!-- Menu de propriedades -->
+        <aside id="propertyMenu" class="rounded bg-transparent-black p-3 flex-grow-1 property-bar">
+          <span class="mb-0 fw-bold">Propriedades</span>
+          <span id="status">(nenhum objeto selecionado)</span>
+          <div id="propertyForm">
+
+          </div>
+        </aside>
+      </section>
+      <form class="w-100 mt-2 d-flex gap-2">
+        <div>
+          <span class="fw-bold">Exibir:</span> <br>
+          <input type="checkbox" id="lines" class="form-check-input" checked> Mostrar linhas de campo<br>
+          <input type="checkbox" id="arrows" class="form-check-input"> Mostrar grade de vetores <br>
+          <!-- <input type="checkbox" id="arrows" class="form-check-input"> Grade <br> -->
+        </div>
+        <div>
+          <span class="fw-bold">Background:</span> <br>
+          <input type="radio" name="bg" value="n" class="form-check-input" checked> Nenhum <br>
+          <input type="radio" name="bg" value="1" class="form-check-input"> Potência do campo elétrico <br>
+          <input type="radio" name="bg" value="2" class="form-check-input"> Diferença de potencial <br>
+          <input type="radio" name="bg" value="0" class="form-check-input"> Direção do campo elétrico <br>
+        </div>
+      </form>
+
+      <!-- Configurações do simulador -->
+      <div class="accordion w-100 mt-2" id="ac">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              Configurações do Simulador
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#ac">
+            <div class="accordion-body">
+
+
+              <p class="fw-bold mb-1 mt-3">Visualização:</p>
+              <div class="input-group">
+                <span class="input-group-text">Escala: </span>
+                <input type="text" class="form-control" id="scale">
+                <span class="input-group-text">m/px </span>
+              </div>
+              <span class="fst-italic fw-light" style="font-size: 0.75em;">(Determina quantos metros cada pixel
+                desimulação possui)</span>
+
+              <div class="input-group">
+                <span class="input-group-text">Normalizar vetores </span>
+                <div class="input-group-text bg-body">
+                  <input type="checkbox" class="form-check-input mt-0" id="normalize_vectors">
+                </div>
+              </div>
+              <span class="fst-italic fw-light" style="font-size: 0.75em;">(Normaliza os vetores para facilitar a
+                exibição)
+              </span>
+
+
+              <p class="fw-bold mb-1">Otimização / Configurações avançadas:</p>
+              <div class="input-group">
+                <span class="input-group-text">Qualidade da simulaçao: </span>
+                <input type="text" class="form-control" id="simulation_quality">
+              </div>
+              <span class="fst-italic fw-light" style="font-size: 0.75em;">(Quanto menor o número mais preciso será a
+                simulação, consequentemente, mais lenta. Números muito altos podem apresentar artefatos
+                indesejados)</span>
+
+              <div class="input-group">
+                <span class="input-group-text">Quantidade de iterações: </span>
+                <input type="text" class="form-control" id="simulation_iterations">
+              </div>
+              <span class="fst-italic fw-light" style="font-size: 0.75em;">(Determina, quantas iterações o simulador
+                vai
+                computar antes do resultado final)</span>
+
+
+
             </div>
-          </aside>
-        </section>
-        <form class="w-100 mt-2">
-            <input type="checkbox" id="lines" class="form-check-input" checked> Mostrar linhas de campo<br>
-            <input type="checkbox" id="arrows" class="form-check-input"> Mostrar grade de vetores <br>
-            Background: <br>
-            <input type="radio" name="bg" value="n" class="form-check-input" checked> Nenhum <br>
-            <input type="radio" name="bg" value="1" class="form-check-input"> Potência do campo elétrico <br>
-            <input type="radio" name="bg" value="2" class="form-check-input"> Diferença de potencial <br>
-            <input type="radio" name="bg" value="0" class="form-check-input"> Direção do campo elétrico <br>
-        </form>
-      </main>
-      <hr class="border">
+          </div>
+        </div>
+      </div>
+  </div>
+  </main>
+  <hr class="border">
 
-        <!-- <canvas id="maincanvas" width="8000" height="8000"></canvas><br> -->
-      <!-- x <input type="number" id="x" placeholder="x" value="10">
+
+  <!-- <canvas id="maincanvas" width="8000" height="8000"></canvas><br> -->
+  <!-- x <input type="number" id="x" placeholder="x" value="10">
       y <input type="number" id="y" placeholder="y" value="10"> -->
-      
-      <!-- <button class="btn btn-primary"></button> -->
-    </div>
-      
-    <script type="module" src="/src/main.js"></script>
-  </body>
+
+  <!-- <button class="btn btn-primary"></button> -->
+
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>

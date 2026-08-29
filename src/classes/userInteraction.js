@@ -1,4 +1,5 @@
 import ChargeParticle from "./chargeParticle"
+import SimulatorConfiguration from "./configuration"
 import { Point } from "./generics"
 import testCharge from "./testCharge"
 
@@ -7,7 +8,7 @@ export class UserInteraction {
     /** @type {WebGL2RenderingContext} */
     gl
 
-    
+
     modeSelector
 
     // STATE
@@ -17,6 +18,7 @@ export class UserInteraction {
     activeMode = "selection"
     mouseDown = false
     propertyHandler = new PropertyHandler()
+    gridSize = 0
 
     constructor(canvas) {
         this.canvas = canvas
@@ -79,6 +81,7 @@ export class UserInteraction {
                 const tc = new testCharge(this.mousePos, -0.2)
                 this.selectObject(tc)
                 this.setModeActive("selection")
+                break
             default:
                 this.setModeActive("selection")
         }
@@ -120,6 +123,7 @@ class PropertyHandler {
     eletricalfieldintensity
     eletricalfieldforce
 
+
     // State
     target
 
@@ -139,15 +143,15 @@ class PropertyHandler {
         } else {
             this.status.innerHTML = "(nenhum objeto selecionado)"
         }
-        
-        if(object!=this.target){
+
+        if (object != this.target) {
             this.propertyForm.innerHTML = ""
-        }        
+        }
         console.log(this.target)
-        
-        if(object == this.target){
+
+        if (object == this.target) {
             this.updateUI()
-        }else if(object){
+        } else if (object) {
             this.target = object
             console.log("aa")
             this.generateUI()
@@ -158,6 +162,8 @@ class PropertyHandler {
     }
 
     generateUI() {
+        const scale = SimulatorConfiguration.scale
+
         const deleteButton = document.createElement("button")
         deleteButton.className = ""
         deleteButton.innerText = "Excluir"
@@ -187,13 +193,17 @@ class PropertyHandler {
         this.charge_range_input.min = -0.2
         this.charge_range_input.max = 0.2
         this.charge_range_input.step = 0.00001
-        
+        const resultspan = document.createElement("p")
+        resultspan.className = "mb-0 fw-bold"
+        resultspan.innerText = "Resultados:"
+        this.eletricalfieldforce = document.createElement("p")
 
-        this.charge_input.addEventListener("change",()=>{
+
+        this.charge_input.addEventListener("change", () => {
             this.target.charge = parseFloat(this.charge_input.value)
             this.updateUI()
         })
-        this.charge_range_input.addEventListener("input",()=>{
+        this.charge_range_input.addEventListener("input", () => {
             this.target.charge = parseFloat(this.charge_range_input.value)
             this.updateUI()
         })
@@ -205,11 +215,11 @@ class PropertyHandler {
 
         const t = this
         this.position_x_input.addEventListener("change", (e) => {
-            this.target.position.x = parseFloat(this.position_x_input.value)
+            this.target.position.x = parseFloat(this.position_x_input.value) / scale
             this.updateUI()
         })
         this.position_y_input.addEventListener("change", (e) => {
-            this.target.position.y = parseFloat(this.position_y_input.value)
+            this.target.position.y = parseFloat(this.position_y_input.value) / scale
             this.updateUI()
         })
 
@@ -222,9 +232,13 @@ class PropertyHandler {
         this.propertyForm.appendChild(this.charge_input)
         this.propertyForm.appendChild(this.charge_range_input)
 
+        this.propertyForm.appendChild(resultspan)
+        this.propertyForm.appendChild(document.createElement("hr"))
         if (this.target instanceof testCharge) {
             this.generateTestChargeUI()
         }
+        this.propertyForm.appendChild(this.eletricalfieldforce)
+
 
         this.propertyForm.appendChild(deleteButton)
         console.log(deleteButton)
@@ -233,58 +247,75 @@ class PropertyHandler {
     }
 
 
-    generateTestChargeUI(){
-            const resultspan = document.createElement("p")
-            resultspan.className = "mb-0 fw-bold"
-            resultspan.innerText = "Resultados:"
-            this.eletricalfieldintensity = document.createElement("p")
-            this.eletricalfieldintensity.className = "mb-0"
-            this.eletricalfieldforce = document.createElement("p")
-            const scalespan = document.createElement("span")
-            scalespan.innerText="Escala da exibição:"
+    generateTestChargeUI() {
+        this.eletricalfieldintensity = document.createElement("p")
+        this.eletricalfieldintensity.className = "mb-0"
+
+        const scalespan = document.createElement("span")
+        scalespan.innerText = "Escala da exibição:"
+        if (!SimulatorConfiguration.normalize_vectors) {
             this.local_scale_range_input = document.createElement("input")
             this.local_scale_range_input.type = "range"
-            this.local_scale_range_input.min=0.0001
-            this.local_scale_range_input.max=1.2
-            this.local_scale_range_input.step=0.000001
+            this.local_scale_range_input.min = 0.0001
+            this.local_scale_range_input.max = 1.2
+            this.local_scale_range_input.step = 0.000001
             this.local_scale_input = document.createElement("input")
             this.local_scale_input.type = "number"
 
 
-            this.local_scale_range_input.addEventListener("input",e=>{
+            this.local_scale_range_input.addEventListener("input", e => {
                 this.target.scale = parseFloat(this.local_scale_range_input.value)
                 this.updateUI()
             })
 
-            this.local_scale_input.addEventListener("change",e=>{
+            this.local_scale_input.addEventListener("change", e => {
                 this.target.scale = parseFloat(this.local_scale_input.value)
                 this.updateUI()
             })
 
-            
-            this.propertyForm.appendChild(document.createElement("hr"))
+        }
+
+        if (!SimulatorConfiguration.normalize_vectors) {
             this.propertyForm.appendChild(scalespan)
             this.propertyForm.appendChild(this.local_scale_input)
             this.propertyForm.appendChild(this.local_scale_range_input)
-            this.propertyForm.appendChild(resultspan)
-            this.propertyForm.appendChild(this.eletricalfieldintensity)
-            this.propertyForm.appendChild(this.eletricalfieldforce)
+        }
+        this.propertyForm.appendChild(this.eletricalfieldintensity)
     }
 
-    updateUI(){
-        if(!this.target) return
+    updateUI() {
+        const scale = SimulatorConfiguration.scale
+        if (!this.target) return
 
-        this.position_x_input.value = this.target.position.x.toFixed(2)
-        this.position_y_input.value = this.target.position.y.toFixed(2)
-        this.charge_input.value = this.target.charge
+        this.position_x_input.value = (this.target.position.x * scale).toFixed(2)
+        this.position_y_input.value = (this.target.position.y * scale).toFixed(2)
+
+        if (Math.abs(this.target.charge) < 0.1) {
+            this.charge_input.value = this.target.charge.toExponential(2)
+        } else {
+            this.charge_input.value = this.target.charge
+        }
+
         this.charge_range_input.value = this.target.charge
         if (this.target instanceof testCharge) {
-            var efiv = ChargeParticle.get_field_from_array(this.target.position)
-            var eff = this.target.getForce()
-            this.eletricalfieldforce.innerHTML = `Força Elétrica: <span>${eff.magnitude().toFixed(2)}N</span>`
-            this.eletricalfieldintensity.innerHTML = `Intensidade do campo elétrico: <span>${efiv.magnitude().toFixed(2)}N</span>`
-            this.local_scale_input.value = this.target.scale
-            this.local_scale_range_input.value = this.target.scale
+            var efiv = ChargeParticle.get_field_from_array(this.target.position).magnitude()
+            var formatedefiv = (efiv>0.1 && efiv<1000.0) ? efiv.toFixed(4) : efiv.toExponential(2)
+
+            var eff = this.target.getForce().magnitude()
+            var formatedeff = (eff>0.1 && eff<1000.0) ? eff.toFixed(4) : eff.toExponential(2)
+            this.eletricalfieldforce.innerHTML = `Força Elétrica: <span class="answer">${formatedeff} N</span>`
+            this.eletricalfieldintensity.innerHTML = `Intensidade do campo elétrico: <span class="answer">${formatedefiv} N</span>`
+
+            if (!SimulatorConfiguration.normalize_vectors) {
+                this.local_scale_input.value = this.target.scale
+                this.local_scale_range_input.value = this.target.scale
+            }
+        }else{
+            var eff = this.target.getForce().magnitude()
+            var formatedeff = (eff>0.1 && eff<1000.0) ? eff.toFixed(4) : eff.toExponential(2)
+
+            this.eletricalfieldforce.innerHTML = `Força Elétrica: <span class="answer">${formatedeff} N</span>`
+
         }
     }
 
