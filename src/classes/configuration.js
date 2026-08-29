@@ -1,7 +1,10 @@
 import { WebglRender } from "../render"
+import ChargeParticle from "./chargeParticle"
+import testCharge from "./testCharge"
 
 export default class SimulatorConfiguration {
     static scale = 1
+    static scale_diff = 1
     static normalize_vectors = true
 
     static currentRenderer
@@ -22,6 +25,15 @@ export default class SimulatorConfiguration {
         if(this.currentRenderer){
             this.currentRenderer.setScale(this.scale)
         }
+        if(this.currentUserInteraction){
+            this.currentUserInteraction.propertyHandler.updateUI()
+        }
+        for(let charge of ChargeParticle.Charges){
+            charge.position = charge.position.multiply(this.scale_diff)
+        }
+        for(let testc of testCharge.testCharges){
+            testc.position = testc.position.multiply(this.scale_diff)
+        }
     }
 
     static updateDom() {
@@ -32,7 +44,11 @@ export default class SimulatorConfiguration {
     }
 
     static loadFromDom() {
-        this.scale = parseFloat(this.input_scale.value)
+        const sclinp = Math.max(parseFloat(this.input_scale.value),0.0001)
+        this.input_scale.value = sclinp
+
+        this.scale_diff = this.scale/sclinp
+        this.scale = sclinp
         this.normalize_vectors = this.input_normalize_vectors.checked
         this.simulation_quality = parseFloat(this.input_simulation_quality.value)
         this.simulation_iterations = parseFloat(this.input_simulation_iterations.value)
