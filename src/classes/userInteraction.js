@@ -82,7 +82,7 @@ export class UserInteraction {
         if(e instanceof TouchEvent){
             const touch = e.touches[0]
             console.log(touch)
-            pos = new Point(touch.clientX-touch.target.offsetLeft, touch.clientY-touch.target.offsetTop)
+            pos = new Point(touch.pageX-touch.target.offsetLeft, touch.pageY-touch.target.offsetTop)
         }else{
             pos = new Point(e.offsetX, e.offsetY)
         }
