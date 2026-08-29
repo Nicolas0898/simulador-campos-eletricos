@@ -29,9 +29,14 @@ export class UserInteraction {
             child.addEventListener("click", this.setModeActive.bind(this, child.dataset.mode))
         }
 
+
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this))
         this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this))
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this))
+        
+        this.canvas.addEventListener("touchmove", this.onMouseMove.bind(this))
+        this.canvas.addEventListener("touchstart", this.onMouseDown.bind(this))
+        this.canvas.addEventListener("touchend", this.onMouseUp.bind(this))
     }
 
     /** @param {Point} pos  */
@@ -70,8 +75,20 @@ export class UserInteraction {
     }
 
     // EVENT FUNCTIONS
-    onMouseMove(e) {
-        this.mousePos = this.convertClientPosToCanvasPos(new Point(e.offsetX, e.offsetY))
+    onMouseMove(e,forceUpdate=false) {
+        if(this.activeMode!="selection" && !forceUpdate) return
+        e.preventDefault()
+        let pos = new Point(0,0)
+        if(e instanceof TouchEvent){
+            const touch = e.touches[0]
+            console.log(touch)
+            pos = new Point(touch.clientX-touch.target.offsetLeft, touch.clientY-touch.target.offsetTop)
+        }else{
+            pos = new Point(e.offsetX, e.offsetY)
+        }
+        this.mousePos = this.convertClientPosToCanvasPos(pos)
+        console.log(this.mouseDown)
+        if(forceUpdate) return
         if (this.mouseDown && this.propertyHandler.target != null) {
             this.propertyHandler.target.position = this.getQuantPos(this.mousePos)
             this.propertyHandler.updateUI()
@@ -79,18 +96,27 @@ export class UserInteraction {
     }
 
     onMouseDown(e) {
+        e.preventDefault()
         this.mouseDown = true
+
+        if(e instanceof TouchEvent){
+            this.selectObject(null)
+        }
+
         //console.log("pressed with:", this.activeMode)
         switch (this.activeMode) {
             case "selection":
+                this.onMouseMove(e,true)
                 this.selectionDown()
                 break
             case "create_charge":
+                this.onMouseMove(e,true)
                 const c = new ChargeParticle(this.getQuantPos(this.mousePos), -0.002)
                 this.selectObject(c)
                 this.setModeActive("selection")
                 break
             case "create_test_charge":
+                this.onMouseMove(e,true)
                 const tc = new testCharge(this.getQuantPos(this.mousePos), -0.002)
                 this.selectObject(tc)
                 this.setModeActive("selection")
@@ -102,9 +128,13 @@ export class UserInteraction {
 
     onMouseUp(e) {
         this.mouseDown = false
+        e.preventDefault()
     }
 
     selectionDown(e) {
+        const isMobile = navigator.userAgentData.mobile;
+        console.log(isMobile)
+        console.log("selectiondown")
         var selected = null
         for (let charge of [...ChargeParticle.Charges, ...testCharge.testCharges]) {
             var distance = charge.position.distance_to(this.mousePos)
@@ -184,15 +214,17 @@ class PropertyHandler {
         positionspan.textContent = "Posição (Metros):"
         positionspan.className = "m-0"
         const wrapper = document.createElement("div")
-        wrapper.className = "d-flex justify-content-between"
+        wrapper.className = "d-flex justify-content-between flex-wrap gap-1"
         this.position_x_input = document.createElement("input")
         this.position_x_input.type = "number"
         this.position_x_input.placeholder = "x"
         this.position_x_input.step = 0
+        this.position_x_input.className = "flex-grow-1"
         this.position_y_input = document.createElement("input")
         this.position_y_input.type = "number"
         this.position_y_input.placeholder = "y"
         this.position_y_input.step = 0
+        this.position_y_input.className = "flex-grow-1"
         const chargespan = document.createElement("p")
         chargespan.textContent = "Carga (Coulomb):"
         chargespan.className = "m-0"
